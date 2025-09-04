@@ -1,11 +1,15 @@
 package com.benjamerc.SimpleLogin.service.impl;
 
+import com.benjamerc.SimpleLogin.domain.dto.auth.request.UserLoginRequest;
+import com.benjamerc.SimpleLogin.domain.dto.auth.response.UserLoginResponse;
 import com.benjamerc.SimpleLogin.domain.entity.UserEntity;
 import com.benjamerc.SimpleLogin.domain.enums.Role;
 import com.benjamerc.SimpleLogin.exception.EmailAlreadyExistsException;
 import com.benjamerc.SimpleLogin.exception.InvalidCredentialsException;
 import com.benjamerc.SimpleLogin.exception.UserNotFoundByEmailException;
+import com.benjamerc.SimpleLogin.mapper.AuthMapper;
 import com.benjamerc.SimpleLogin.repository.UserRepository;
+import com.benjamerc.SimpleLogin.security.JwtService;
 import com.benjamerc.SimpleLogin.service.AuthService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -15,13 +19,17 @@ import org.springframework.stereotype.Service;
 public class AuthServiceImpl implements AuthService {
 
     private final UserRepository userRepository;
-
     private final PasswordEncoder passwordEncoder;
+    private final JwtService jwtService;
+    private final AuthMapper authMapper;
 
     @Autowired
-    public AuthServiceImpl(UserRepository userRepository, PasswordEncoder passwordEncoder) {
+    public AuthServiceImpl(UserRepository userRepository, PasswordEncoder passwordEncoder,
+                           JwtService jwtService, AuthMapper authMapper) {
         this.userRepository = userRepository;
         this.passwordEncoder = passwordEncoder;
+        this.jwtService = jwtService;
+        this.authMapper = authMapper;
     }
 
     @Override
@@ -36,15 +44,20 @@ public class AuthServiceImpl implements AuthService {
     }
 
     @Override
-    public UserEntity login(UserEntity loginAttempt) {
-        UserEntity user = userRepository.findByEmail(loginAttempt.getEmail())
+    public UserLoginResponse login(UserLoginRequest request) {
+        UserEntity user = userRepository.findByEmail(request.getEmail())
                 .orElseThrow(UserNotFoundByEmailException::new);
 
-        if (!passwordEncoder.matches(loginAttempt.getPassword(), user.getPassword())) {
+        if (!passwordEncoder.matches(request.getPassword(), user.getPassword())) {
             throw new InvalidCredentialsException();
         }
 
-        return user;
+        String token = jwtService.generateToken(user.getEmail());
+
+        UserLoginResponse response = authMapper.entityToLoginResponse(user);
+        response.setToken(token);
+
+        return response;
     }
 
     @Override

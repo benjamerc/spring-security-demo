@@ -22,5 +22,6 @@ public interface AuthMapper {
     @Mapping(target = "role", ignore = true)
     UserEntity loginRequestToEntity(UserLoginRequest request);
 
+    @Mapping(target = "token", ignore = true)
     UserLoginResponse entityToLoginResponse(UserEntity entity);
 }
