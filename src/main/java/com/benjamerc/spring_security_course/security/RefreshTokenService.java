@@ -3,6 +3,7 @@ package com.benjamerc.spring_security_course.security;
 import com.benjamerc.spring_security_course.config.security.JwtProperties;
 import com.benjamerc.spring_security_course.domain.entity.RefreshToken;
 import com.benjamerc.spring_security_course.domain.entity.User;
+import com.benjamerc.spring_security_course.exception.token.RefreshTokenNotFoundException;
 import com.benjamerc.spring_security_course.repository.RefreshTokenRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -20,7 +21,7 @@ public class RefreshTokenService {
 
     public RefreshToken createRefreshToken(User user, UUID session) {
 
-        Long expirationMillis = jwtProperties.getRefreshToken().getExpiration();
+        long expirationMillis = jwtProperties.getRefreshToken().getExpiration();
 
         RefreshToken refreshToken = RefreshToken.builder()
                 .token(UUID.randomUUID())
@@ -89,6 +90,6 @@ public class RefreshTokenService {
     public RefreshToken getTokenOrThrow(UUID token) {
 
         return refreshTokenRepository.findByToken(token)
-                .orElseThrow(() -> new RuntimeException("Refresh token not found"));
+                .orElseThrow(() -> new RefreshTokenNotFoundException("Refresh token not found: " + token));
     }
 }

@@ -4,6 +4,7 @@ import com.benjamerc.spring_security_course.domain.dto.user.request.UserPartialU
 import com.benjamerc.spring_security_course.domain.dto.user.response.UserPartialUpdateResponse;
 import com.benjamerc.spring_security_course.domain.dto.user.response.UserProfileResponse;
 import com.benjamerc.spring_security_course.domain.entity.User;
+import com.benjamerc.spring_security_course.exception.user.UserNotFoundException;
 import com.benjamerc.spring_security_course.mapper.UserMapper;
 import com.benjamerc.spring_security_course.repository.UserRepository;
 import com.benjamerc.spring_security_course.security.CustomUserDetails;
@@ -67,6 +68,6 @@ public class UserServiceImpl implements UserService {
     private User getUserOrThrow(CustomUserDetails userDetails) {
 
         return userRepository.findById(userDetails.getId())
-                .orElseThrow(() -> new RuntimeException("User not found with id: " + userDetails.getId()));
+                .orElseThrow(() -> new UserNotFoundException("User not found with id: " + userDetails.getId()));
     }
 }

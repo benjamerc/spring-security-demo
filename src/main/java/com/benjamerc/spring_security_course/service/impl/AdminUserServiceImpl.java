@@ -14,6 +14,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 
 import java.util.Optional;
@@ -85,7 +86,7 @@ public class AdminUserServiceImpl implements AdminUserService {
     private User getUserByIdOrThrow(Long id) {
 
         return userRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("User not found with id: " + id));
+                .orElseThrow(() -> new UsernameNotFoundException("User not found with id: " + id));
     }
 
     private Pageable getSafePageable(Pageable pageable) {
