@@ -6,6 +6,8 @@ import com.benjamerc.spring_security_course.domain.dto.admin.user.response.Admin
 import com.benjamerc.spring_security_course.domain.entity.User;
 import com.benjamerc.spring_security_course.mapper.AdminUserMapper;
 import com.benjamerc.spring_security_course.repository.UserRepository;
+import com.benjamerc.spring_security_course.security.RefreshTokenService;
+import com.benjamerc.spring_security_course.security.Role;
 import com.benjamerc.spring_security_course.service.AdminUserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
@@ -22,8 +24,9 @@ public class AdminUserServiceImpl implements AdminUserService {
 
     private final UserRepository userRepository;
     private final AdminUserMapper adminUserMapper;
+    private final RefreshTokenService refreshTokenService;
 
-    @Value("${spring.pagination.max-page-size}")
+    @Value("${pagination.max-page-size}")
     private int maxPageSize;
 
     @Override
@@ -57,11 +60,10 @@ public class AdminUserServiceImpl implements AdminUserService {
                 .ifPresent(user::setName);
 
         Optional.ofNullable(request.role())
+                .filter(r -> r != Role.ADMIN)
                 .ifPresent(user::setRole);
 
-        User updatedUser = userRepository.save(user);
-
-        return adminUserMapper.toAdminUserResponse(updatedUser);
+        return adminUserMapper.toAdminUserResponse(userRepository.save(user));
     }
 
     @Override
@@ -70,6 +72,14 @@ public class AdminUserServiceImpl implements AdminUserService {
         User user = getUserByIdOrThrow(id);
 
         userRepository.delete(user);
+    }
+
+    @Override
+    public void logoutAll(Long id) {
+
+        User user = getUserByIdOrThrow(id);
+
+        refreshTokenService.revokeAllTokensForUser(user);
     }
 
     private User getUserByIdOrThrow(Long id) {

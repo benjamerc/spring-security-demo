@@ -17,7 +17,7 @@ import org.springframework.web.bind.annotation.*;
 @RestController
 @RequestMapping("/api/admin")
 @RequiredArgsConstructor
-public class UserAdminController {
+public class AdminUserController {
 
     private final AdminUserService adminUserService;
 
@@ -49,6 +49,15 @@ public class UserAdminController {
     public ResponseEntity<Void> deleteUser(@PathVariable Long id) {
 
         adminUserService.deleteUser(id);
+
+        return ResponseEntity.noContent().build();
+    }
+
+    @PostMapping("/users/{id}/logout-all")
+    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity<Void> forceLogoutAll(@PathVariable Long id) {
+
+        adminUserService.logoutAll(id);
 
         return ResponseEntity.noContent().build();
     }

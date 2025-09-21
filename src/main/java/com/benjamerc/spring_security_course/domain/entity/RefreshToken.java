@@ -7,6 +7,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.time.Instant;
+import java.util.UUID;
 
 @Entity
 @Table(name = "refresh_tokens")
@@ -20,14 +21,18 @@ public class RefreshToken {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(nullable = false, unique = true, length = 1000)
-    private String token;
+    @Column(nullable = false, unique = true)
+    private UUID token;
 
     @Column(nullable = false)
     private Instant expiryDate;
 
+    @Builder.Default
     @Column(nullable = false)
     private boolean revoked = false;
+
+    @Column(nullable = false)
+    private UUID session;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id", nullable = false)

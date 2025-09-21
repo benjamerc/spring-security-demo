@@ -19,21 +19,24 @@ public class AccessTokenService {
     private final JwtProperties jwtProperties;
 
     private SecretKey getSigningKey() {
+
         return Keys.hmacShaKeyFor(jwtProperties.getSecretKey().getBytes());
     }
 
     public String createAccessToken(User user) {
+
         return Jwts.builder()
-                .setSubject(user.getUsername())
+                .subject(user.getUsername())
                 .claim("id", user.getId())
                 .claim("role", user.getRole())
-                .setIssuedAt(new Date())
-                .setExpiration(new Date(System.currentTimeMillis() + jwtProperties.getExpiration()))
+                .issuedAt(new Date())
+                .expiration(new Date(System.currentTimeMillis() + jwtProperties.getExpiration()))
                 .signWith(getSigningKey())
                 .compact();
     }
 
     public Claims validateToken(String token) {
+
         Jws<Claims> jws = Jwts.parser()
                 .verifyWith(getSigningKey())
                 .build()

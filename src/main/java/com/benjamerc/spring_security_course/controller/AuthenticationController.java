@@ -11,6 +11,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -33,8 +34,18 @@ public class AuthenticationController {
     }
 
     @PostMapping("/refresh")
-    public ResponseEntity<AuthAuthenticateResponse> refreshToken(@RequestBody AuthRefreshTokenRequest request) {
+    @PreAuthorize("isAuthenticated()")
+    public ResponseEntity<AuthAuthenticateResponse> refreshToken(@RequestBody @Valid AuthRefreshTokenRequest request) {
 
-        return ResponseEntity.ok(authenticationService.refreshToken(request.refreshToken()));
+        return ResponseEntity.ok(authenticationService.refreshToken(request));
+    }
+
+    @PostMapping("/logout")
+    @PreAuthorize("isAuthenticated()")
+    public ResponseEntity<Void> logout(@RequestBody @Valid AuthRefreshTokenRequest request) {
+
+        authenticationService.logout(request);
+
+        return ResponseEntity.noContent().build();
     }
 }

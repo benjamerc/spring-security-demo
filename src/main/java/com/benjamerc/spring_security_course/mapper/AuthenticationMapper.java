@@ -10,5 +10,4 @@ public interface AuthenticationMapper {
 
     AuthRegisterResponse toAuthRegisterResponse(User user);
 
-    AuthAuthenticateResponse toAuthAuthenticateResponse(User user);
 }

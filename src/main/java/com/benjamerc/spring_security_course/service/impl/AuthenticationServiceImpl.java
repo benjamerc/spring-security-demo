@@ -1,6 +1,7 @@
 package com.benjamerc.spring_security_course.service.impl;
 
 import com.benjamerc.spring_security_course.domain.dto.auth.request.AuthAuthenticateRequest;
+import com.benjamerc.spring_security_course.domain.dto.auth.request.AuthRefreshTokenRequest;
 import com.benjamerc.spring_security_course.domain.dto.auth.request.AuthRegisterRequest;
 import com.benjamerc.spring_security_course.domain.dto.auth.response.AuthAuthenticateResponse;
 import com.benjamerc.spring_security_course.domain.dto.auth.response.AuthRegisterResponse;
@@ -19,6 +20,8 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.core.Authentication;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+
+import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
@@ -48,39 +51,32 @@ public class AuthenticationServiceImpl implements AuthenticationService {
     public AuthAuthenticateResponse login(AuthAuthenticateRequest request) {
 
         Authentication authentication = authenticationManager.authenticate(
-                new UsernamePasswordAuthenticationToken(
-                        request.username(),
-                        request.password()
-                )
+                new UsernamePasswordAuthenticationToken(request.username(), request.password())
         );
 
         CustomUserDetails userDetails = (CustomUserDetails) authentication.getPrincipal();
         User user = userDetails.getUser();
 
-        String accessToken = accessTokenService.createAccessToken(userDetails.getUser());
-        RefreshToken refreshToken = refreshTokenService.createRefreshToken(user);
+        UUID session = UUID.randomUUID();
 
-        return new AuthAuthenticateResponse(
-                accessToken,
-                refreshToken.getToken()
-        );
+        String accessToken = accessTokenService.createAccessToken(user);
+        RefreshToken refreshToken = refreshTokenService.createRefreshToken(user, session);
+
+        return new AuthAuthenticateResponse(accessToken, refreshToken.getToken());
     }
 
     @Override
-    public AuthAuthenticateResponse refreshToken(String refreshToken) {
+    public AuthAuthenticateResponse refreshToken(AuthRefreshTokenRequest request) {
 
-        RefreshToken oldRefreshToken = refreshTokenService.validateRefreshToken(refreshToken);
+        RefreshToken newRefreshToken = refreshTokenService.rotateRefreshToken(request.token());
+        String newAccessToken = accessTokenService.createAccessToken(newRefreshToken.getUser());
 
-        User user = oldRefreshToken.getUser();
+        return new AuthAuthenticateResponse(newAccessToken, newRefreshToken.getToken());
+    }
 
-        refreshTokenService.revokeRefreshToken(refreshToken);
-        RefreshToken newRefreshToken = refreshTokenService.createRefreshToken(user);
+    @Override
+    public void logout(AuthRefreshTokenRequest request) {
 
-        String newAccessToken = accessTokenService.createAccessToken(user);
-
-        return new AuthAuthenticateResponse(
-                newAccessToken,
-                newRefreshToken.getToken()
-        );
+        refreshTokenService.revokeRefreshToken(request.token());
     }
 }

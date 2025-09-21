@@ -3,12 +3,14 @@ package com.benjamerc.spring_security_course.controller;
 import com.benjamerc.spring_security_course.domain.dto.user.request.UserPartialUpdateRequest;
 import com.benjamerc.spring_security_course.domain.dto.user.response.UserPartialUpdateResponse;
 import com.benjamerc.spring_security_course.domain.dto.user.response.UserProfileResponse;
+import com.benjamerc.spring_security_course.security.CustomUserDetails;
 import com.benjamerc.spring_security_course.service.UserService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -20,24 +22,33 @@ public class UserController {
 
     @GetMapping("/me")
     @PreAuthorize("hasRole('USER')")
-    public ResponseEntity<UserProfileResponse> userProfile(Authentication authentication) {
+    public ResponseEntity<UserProfileResponse> userProfile(@AuthenticationPrincipal CustomUserDetails userDetails) {
 
-        return ResponseEntity.ok(userService.userProfile(authentication));
+        return ResponseEntity.ok(userService.userProfile(userDetails));
     }
 
     @PatchMapping("/me")
     @PreAuthorize("hasRole('USER')")
-    public ResponseEntity<UserPartialUpdateResponse> updateProfile(Authentication authentication,
+    public ResponseEntity<UserPartialUpdateResponse> updateProfile(@AuthenticationPrincipal CustomUserDetails userDetails,
                                                                    @RequestBody @Valid UserPartialUpdateRequest request) {
 
-        return ResponseEntity.ok(userService.updateProfile(authentication, request));
+        return ResponseEntity.ok(userService.updateProfile(userDetails, request));
     }
 
     @DeleteMapping("/me")
     @PreAuthorize("hasRole('USER')")
-    public ResponseEntity<Void> deleteAccount(Authentication authentication) {
+    public ResponseEntity<Void> deleteAccount(@AuthenticationPrincipal CustomUserDetails userDetails) {
 
-        userService.deleteAccount(authentication);
+        userService.deleteAccount(userDetails);
+
+        return ResponseEntity.noContent().build();
+    }
+
+    @PostMapping("/me/logout-all")
+    @PreAuthorize("hasRole('USER')")
+    public ResponseEntity<Void> logoutAll(@AuthenticationPrincipal CustomUserDetails userDetails) {
+
+        userService.logoutAll(userDetails);
 
         return ResponseEntity.noContent().build();
     }

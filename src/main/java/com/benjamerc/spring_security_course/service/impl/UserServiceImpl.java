@@ -7,9 +7,10 @@ import com.benjamerc.spring_security_course.domain.entity.User;
 import com.benjamerc.spring_security_course.mapper.UserMapper;
 import com.benjamerc.spring_security_course.repository.UserRepository;
 import com.benjamerc.spring_security_course.security.CustomUserDetails;
+import com.benjamerc.spring_security_course.security.RefreshTokenService;
 import com.benjamerc.spring_security_course.service.UserService;
 import lombok.RequiredArgsConstructor;
-import org.springframework.security.core.Authentication;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.stereotype.Service;
 
 import java.util.Optional;
@@ -20,19 +21,20 @@ public class UserServiceImpl implements UserService {
 
     private final UserRepository userRepository;
     private final UserMapper userMapper;
+    private final RefreshTokenService refreshTokenService;
 
     @Override
-    public UserProfileResponse userProfile(Authentication authentication) {
+    public UserProfileResponse userProfile(@AuthenticationPrincipal CustomUserDetails userDetails) {
 
-        User user = getAuthenticatedUser(authentication);
+        User user = getUserOrThrow(userDetails);
 
         return userMapper.toUserProfileResponse(user);
     }
 
     @Override
-    public UserPartialUpdateResponse updateProfile(Authentication authentication, UserPartialUpdateRequest request) {
+    public UserPartialUpdateResponse updateProfile(@AuthenticationPrincipal CustomUserDetails userDetails, UserPartialUpdateRequest request) {
 
-        User user = getAuthenticatedUser(authentication);
+        User user = getUserOrThrow(userDetails);
 
         Optional.ofNullable(request.username())
                 .filter(u -> !u.isBlank())
@@ -42,29 +44,29 @@ public class UserServiceImpl implements UserService {
                 .filter(n -> !n.isBlank())
                 .ifPresent(user::setName);
 
-        User updatedUser = userRepository.save(user);
-
-        return new UserPartialUpdateResponse(
-                updatedUser.getUsername(),
-                updatedUser.getName()
-        );
+        return userMapper.toUserPartialUpdateResponse(userRepository.save(user));
     }
 
     @Override
-    public void deleteAccount(Authentication authentication) {
+    public void deleteAccount(@AuthenticationPrincipal CustomUserDetails userDetails) {
 
-        User user = getAuthenticatedUser(authentication);
+        User user = getUserOrThrow(userDetails);
 
         userRepository.delete(user);
     }
 
-    private User getAuthenticatedUser(Authentication authentication) {
+    @Override
+    public void logoutAll(CustomUserDetails userDetails) {
 
-        CustomUserDetails userDetails = (CustomUserDetails) authentication.getPrincipal();
+        User user = getUserOrThrow(userDetails);
+
+        refreshTokenService.revokeAllTokensForUser(user);
+    }
+
+
+    private User getUserOrThrow(CustomUserDetails userDetails) {
 
         return userRepository.findById(userDetails.getId())
-                .orElseThrow(() -> new RuntimeException(
-                        "User not found with id: " + userDetails.getId()
-                ));
+                .orElseThrow(() -> new RuntimeException("User not found with id: " + userDetails.getId()));
     }
 }

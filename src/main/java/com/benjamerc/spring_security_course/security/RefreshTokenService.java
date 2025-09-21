@@ -18,21 +18,21 @@ public class RefreshTokenService {
     private final RefreshTokenRepository refreshTokenRepository;
     private final JwtProperties jwtProperties;
 
-    public RefreshToken createRefreshToken(User user) {
+    public RefreshToken createRefreshToken(User user, UUID session) {
 
         Long expirationMillis = jwtProperties.getRefreshToken().getExpiration();
 
         RefreshToken refreshToken = RefreshToken.builder()
-                .user(user)
-                .token(UUID.randomUUID().toString())
+                .token(UUID.randomUUID())
                 .expiryDate(Instant.now().plusMillis(expirationMillis))
-                .revoked(false)
+                .session(session)
+                .user(user)
                 .build();
 
         return refreshTokenRepository.save(refreshToken);
     }
 
-    public RefreshToken validateRefreshToken(String token) {
+    public RefreshToken validateRefreshToken(UUID token) {
 
         RefreshToken refreshToken = getTokenOrThrow(token);
 
@@ -47,13 +47,34 @@ public class RefreshTokenService {
         return refreshToken;
     }
 
-    public void revokeRefreshToken(String token) {
+    public void revokeRefreshToken(UUID token) {
 
         RefreshToken refreshToken = getTokenOrThrow(token);
 
         refreshToken.setRevoked(true);
 
         refreshTokenRepository.save(refreshToken);
+    }
+
+    public RefreshToken rotateRefreshToken(UUID token) {
+
+        RefreshToken refreshToken = validateRefreshToken(token);
+
+        User user = refreshToken.getUser();
+        UUID session = refreshToken.getSession();
+
+        revokeTokensBySession(user, session);
+
+        return createRefreshToken(user, session);
+    }
+
+    public void revokeTokensBySession(User user, UUID session) {
+
+        List<RefreshToken> tokens = refreshTokenRepository.findAllByUserAndSessionAndRevokedFalse(user, session);
+
+        tokens.forEach(t -> t.setRevoked(true));
+
+        refreshTokenRepository.saveAll(tokens);
     }
 
     public void revokeAllTokensForUser(User user) {
@@ -65,12 +86,7 @@ public class RefreshTokenService {
         refreshTokenRepository.saveAll(refreshTokens);
     }
 
-    public void deleteExpiredTokens() {
-
-        refreshTokenRepository.deleteByExpiryDateBefore(Instant.now());
-    }
-
-    private RefreshToken getTokenOrThrow(String token) {
+    public RefreshToken getTokenOrThrow(UUID token) {
 
         return refreshTokenRepository.findByToken(token)
                 .orElseThrow(() -> new RuntimeException("Refresh token not found"));

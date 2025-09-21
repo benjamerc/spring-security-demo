@@ -15,4 +15,6 @@ public interface AdminUserService {
     AdminUserResponse partialUpdate(Long id, AdminUserUpdateRequest request);
 
     void deleteUser(Long id);
+
+    void logoutAll(Long id);
 }

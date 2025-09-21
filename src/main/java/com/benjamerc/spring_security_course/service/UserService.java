@@ -3,13 +3,15 @@ package com.benjamerc.spring_security_course.service;
 import com.benjamerc.spring_security_course.domain.dto.user.request.UserPartialUpdateRequest;
 import com.benjamerc.spring_security_course.domain.dto.user.response.UserPartialUpdateResponse;
 import com.benjamerc.spring_security_course.domain.dto.user.response.UserProfileResponse;
-import org.springframework.security.core.Authentication;
+import com.benjamerc.spring_security_course.security.CustomUserDetails;
 
 public interface UserService {
 
-    UserProfileResponse userProfile(Authentication authentication);
+    UserProfileResponse userProfile(CustomUserDetails userDetails);
 
-    UserPartialUpdateResponse updateProfile(Authentication authentication, UserPartialUpdateRequest request);
+    UserPartialUpdateResponse updateProfile(CustomUserDetails userDetails, UserPartialUpdateRequest request);
 
-    void deleteAccount(Authentication authentication);
+    void deleteAccount(CustomUserDetails userDetails);
+
+    void logoutAll(CustomUserDetails userDetails);
 }
