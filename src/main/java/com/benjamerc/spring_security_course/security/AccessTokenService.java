@@ -35,7 +35,7 @@ public class AccessTokenService {
                 .compact();
     }
 
-    public Claims validateToken(String token) {
+    public Claims validateAccessToken(String token) {
 
         Jws<Claims> jws = Jwts.parser()
                 .verifyWith(getSigningKey())

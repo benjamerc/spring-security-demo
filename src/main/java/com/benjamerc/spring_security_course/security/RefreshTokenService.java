@@ -3,7 +3,9 @@ package com.benjamerc.spring_security_course.security;
 import com.benjamerc.spring_security_course.config.security.JwtProperties;
 import com.benjamerc.spring_security_course.domain.entity.RefreshToken;
 import com.benjamerc.spring_security_course.domain.entity.User;
+import com.benjamerc.spring_security_course.exception.token.RefreshTokenExpiredException;
 import com.benjamerc.spring_security_course.exception.token.RefreshTokenNotFoundException;
+import com.benjamerc.spring_security_course.exception.token.RefreshTokenRevokedException;
 import com.benjamerc.spring_security_course.repository.RefreshTokenRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -38,11 +40,11 @@ public class RefreshTokenService {
         RefreshToken refreshToken = getTokenOrThrow(token);
 
         if (refreshToken.isRevoked()) {
-            throw new RuntimeException("Refresh token revoked");
+            throw new RefreshTokenRevokedException("Refresh token revoked");
         }
 
         if (refreshToken.getExpiryDate().isBefore(Instant.now())) {
-            throw new RuntimeException("Refresh token expired");
+            throw new RefreshTokenExpiredException("Refresh token expired");
         }
 
         return refreshToken;
