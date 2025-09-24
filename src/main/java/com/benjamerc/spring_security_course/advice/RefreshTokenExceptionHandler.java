@@ -2,9 +2,10 @@ package com.benjamerc.spring_security_course.advice;
 
 import com.benjamerc.spring_security_course.domain.dto.error.ApiError;
 import com.benjamerc.spring_security_course.exception.ErrorCode;
-import com.benjamerc.spring_security_course.exception.token.RefreshTokenExpiredException;
-import com.benjamerc.spring_security_course.exception.token.RefreshTokenNotFoundException;
-import com.benjamerc.spring_security_course.exception.token.RefreshTokenRevokedException;
+import com.benjamerc.spring_security_course.exception.token.refresh.HashingException;
+import com.benjamerc.spring_security_course.exception.token.refresh.RefreshTokenExpiredException;
+import com.benjamerc.spring_security_course.exception.token.refresh.RefreshTokenNotFoundException;
+import com.benjamerc.spring_security_course.exception.token.refresh.RefreshTokenRevokedException;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -51,5 +52,18 @@ public class RefreshTokenExceptionHandler {
                 .build();
 
         return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(error);
+    }
+
+    @ExceptionHandler(HashingException.class)
+    public ResponseEntity<ApiError> handleHashingError(HashingException ex, HttpServletRequest request) {
+
+        ApiError error = ApiError.builder()
+                .code(ErrorCode.HASHING_EXCEPTION)
+                .message(ex.getMessage())
+                .status(HttpStatus.INTERNAL_SERVER_ERROR.value())
+                .path(request.getRequestURI())
+                .build();
+
+        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(error);
     }
 }

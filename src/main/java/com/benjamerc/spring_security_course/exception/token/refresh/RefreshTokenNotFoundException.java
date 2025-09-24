@@ -1,4 +1,4 @@
-package com.benjamerc.spring_security_course.exception.token;
+package com.benjamerc.spring_security_course.exception.token.refresh;
 
 public class RefreshTokenNotFoundException extends RuntimeException {
 

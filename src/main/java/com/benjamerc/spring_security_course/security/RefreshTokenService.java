@@ -1,11 +1,12 @@
 package com.benjamerc.spring_security_course.security;
 
 import com.benjamerc.spring_security_course.config.security.JwtProperties;
+import com.benjamerc.spring_security_course.domain.dto.token.RefreshTokenWithRaw;
 import com.benjamerc.spring_security_course.domain.entity.RefreshToken;
 import com.benjamerc.spring_security_course.domain.entity.User;
-import com.benjamerc.spring_security_course.exception.token.RefreshTokenExpiredException;
-import com.benjamerc.spring_security_course.exception.token.RefreshTokenNotFoundException;
-import com.benjamerc.spring_security_course.exception.token.RefreshTokenRevokedException;
+import com.benjamerc.spring_security_course.exception.token.refresh.RefreshTokenExpiredException;
+import com.benjamerc.spring_security_course.exception.token.refresh.RefreshTokenNotFoundException;
+import com.benjamerc.spring_security_course.exception.token.refresh.RefreshTokenRevokedException;
 import com.benjamerc.spring_security_course.repository.RefreshTokenRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -21,23 +22,28 @@ public class RefreshTokenService {
     private final RefreshTokenRepository refreshTokenRepository;
     private final JwtProperties jwtProperties;
 
-    public RefreshToken createRefreshToken(User user, UUID session) {
+    public RefreshTokenWithRaw createRefreshToken(User user, UUID session) {
 
         long expirationMillis = jwtProperties.getRefreshToken().getExpiration();
 
+        String rawToken = UUID.randomUUID().toString();
+        String hashedToken = TokenUtils.hashSHA256(rawToken);
+
         RefreshToken refreshToken = RefreshToken.builder()
-                .token(UUID.randomUUID().toString())
+                .token(hashedToken)
                 .expiryDate(Instant.now().plusMillis(expirationMillis))
                 .session(session)
                 .user(user)
                 .build();
 
-        return refreshTokenRepository.save(refreshToken);
+        refreshTokenRepository.save(refreshToken);
+
+        return new RefreshTokenWithRaw(refreshToken, rawToken);
     }
 
     public RefreshToken validateRefreshToken(String token) {
 
-        RefreshToken refreshToken = getTokenOrThrow(token);
+        RefreshToken refreshToken = getRefreshTokenOrThrow(TokenUtils.hashSHA256(token));
 
         if (refreshToken.isRevoked()) {
             throw new RefreshTokenRevokedException("Refresh token revoked");
@@ -52,14 +58,14 @@ public class RefreshTokenService {
 
     public void revokeRefreshToken(String token) {
 
-        RefreshToken refreshToken = getTokenOrThrow(token);
+        RefreshToken refreshToken = getRefreshTokenOrThrow(TokenUtils.hashSHA256(token));
 
         refreshToken.setRevoked(true);
 
         refreshTokenRepository.save(refreshToken);
     }
 
-    public RefreshToken rotateRefreshToken(String token) {
+    public RefreshTokenWithRaw rotateRefreshToken(String token) {
 
         RefreshToken refreshToken = validateRefreshToken(token);
 
@@ -89,7 +95,7 @@ public class RefreshTokenService {
         refreshTokenRepository.saveAll(refreshTokens);
     }
 
-    public RefreshToken getTokenOrThrow(String token) {
+    private RefreshToken getRefreshTokenOrThrow(String token) {
 
         return refreshTokenRepository.findByToken(token)
                 .orElseThrow(() -> new RefreshTokenNotFoundException("Refresh token not found: " + token));

@@ -5,6 +5,7 @@ import com.benjamerc.spring_security_course.domain.dto.auth.request.AuthRefreshT
 import com.benjamerc.spring_security_course.domain.dto.auth.request.AuthRegisterRequest;
 import com.benjamerc.spring_security_course.domain.dto.auth.response.AuthAuthenticateResponse;
 import com.benjamerc.spring_security_course.domain.dto.auth.response.AuthRegisterResponse;
+import com.benjamerc.spring_security_course.domain.dto.token.RefreshTokenWithRaw;
 import com.benjamerc.spring_security_course.domain.entity.RefreshToken;
 import com.benjamerc.spring_security_course.domain.entity.User;
 import com.benjamerc.spring_security_course.mapper.AuthenticationMapper;
@@ -60,18 +61,18 @@ public class AuthenticationServiceImpl implements AuthenticationService {
         UUID session = UUID.randomUUID();
 
         String accessToken = accessTokenService.createAccessToken(user);
-        RefreshToken refreshToken = refreshTokenService.createRefreshToken(user, session);
+        RefreshTokenWithRaw refreshToken = refreshTokenService.createRefreshToken(user, session);
 
-        return new AuthAuthenticateResponse(accessToken, refreshToken.getToken());
+        return new AuthAuthenticateResponse(accessToken, refreshToken.getRawToken());
     }
 
     @Override
     public AuthAuthenticateResponse refreshToken(AuthRefreshTokenRequest request) {
 
-        RefreshToken newRefreshToken = refreshTokenService.rotateRefreshToken(request.token());
-        String newAccessToken = accessTokenService.createAccessToken(newRefreshToken.getUser());
+        RefreshTokenWithRaw newRefreshToken = refreshTokenService.rotateRefreshToken(request.token());
+        String newAccessToken = accessTokenService.createAccessToken(newRefreshToken.getRefreshToken().getUser());
 
-        return new AuthAuthenticateResponse(newAccessToken, newRefreshToken.getToken());
+        return new AuthAuthenticateResponse(newAccessToken, newRefreshToken.getRawToken());
     }
 
     @Override
