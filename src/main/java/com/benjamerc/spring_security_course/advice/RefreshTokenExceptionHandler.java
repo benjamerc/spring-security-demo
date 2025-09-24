@@ -12,7 +12,7 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
 @RestControllerAdvice
-public class TokenExceptionHandler {
+public class RefreshTokenExceptionHandler {
 
     @ExceptionHandler(RefreshTokenNotFoundException.class)
     public ResponseEntity<ApiError> handleRefreshTokenNotFound(RefreshTokenNotFoundException ex, HttpServletRequest request) {
