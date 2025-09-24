@@ -21,8 +21,8 @@ public class RefreshToken {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(nullable = false, unique = true)
-    private UUID token;
+    @Column(nullable = false, unique = true, length = 88)
+    private String token;
 
     @Column(nullable = false)
     private Instant expiryDate;

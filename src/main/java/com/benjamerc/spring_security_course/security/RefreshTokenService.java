@@ -26,7 +26,7 @@ public class RefreshTokenService {
         long expirationMillis = jwtProperties.getRefreshToken().getExpiration();
 
         RefreshToken refreshToken = RefreshToken.builder()
-                .token(UUID.randomUUID())
+                .token(UUID.randomUUID().toString())
                 .expiryDate(Instant.now().plusMillis(expirationMillis))
                 .session(session)
                 .user(user)
@@ -35,7 +35,7 @@ public class RefreshTokenService {
         return refreshTokenRepository.save(refreshToken);
     }
 
-    public RefreshToken validateRefreshToken(UUID token) {
+    public RefreshToken validateRefreshToken(String token) {
 
         RefreshToken refreshToken = getTokenOrThrow(token);
 
@@ -50,7 +50,7 @@ public class RefreshTokenService {
         return refreshToken;
     }
 
-    public void revokeRefreshToken(UUID token) {
+    public void revokeRefreshToken(String token) {
 
         RefreshToken refreshToken = getTokenOrThrow(token);
 
@@ -59,7 +59,7 @@ public class RefreshTokenService {
         refreshTokenRepository.save(refreshToken);
     }
 
-    public RefreshToken rotateRefreshToken(UUID token) {
+    public RefreshToken rotateRefreshToken(String token) {
 
         RefreshToken refreshToken = validateRefreshToken(token);
 
@@ -89,7 +89,7 @@ public class RefreshTokenService {
         refreshTokenRepository.saveAll(refreshTokens);
     }
 
-    public RefreshToken getTokenOrThrow(UUID token) {
+    public RefreshToken getTokenOrThrow(String token) {
 
         return refreshTokenRepository.findByToken(token)
                 .orElseThrow(() -> new RefreshTokenNotFoundException("Refresh token not found: " + token));
