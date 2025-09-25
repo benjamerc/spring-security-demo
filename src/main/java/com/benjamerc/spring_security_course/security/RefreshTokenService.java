@@ -58,7 +58,7 @@ public class RefreshTokenService {
 
     public void revokeRefreshToken(String token) {
 
-        RefreshToken refreshToken = getRefreshTokenOrThrow(TokenUtils.hashSHA256(token));
+        RefreshToken refreshToken = validateRefreshToken(token);
 
         refreshToken.setRevoked(true);
 
