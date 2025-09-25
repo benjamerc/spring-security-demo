@@ -10,11 +10,12 @@ import java.util.Base64;
 public class TokenUtils {
 
     public static String hashSHA256(String input) {
+
         try {
 
-            MessageDigest digest = MessageDigest.getInstance("SHA-256");
+            MessageDigest messageDigest = MessageDigest.getInstance("SHA-256");
 
-            byte[] hashed = digest.digest(input.getBytes(StandardCharsets.UTF_8));
+            byte[] hashed = messageDigest.digest(input.getBytes(StandardCharsets.UTF_8));
 
             return Base64.getEncoder().encodeToString(hashed);
 

@@ -78,6 +78,8 @@ public class AuthenticationServiceImpl implements AuthenticationService {
     @Override
     public void logout(AuthRefreshTokenRequest request) {
 
-        refreshTokenService.revokeRefreshToken(request.token());
+        RefreshToken refreshToken = refreshTokenService.validateRefreshToken(request.token());
+
+        refreshTokenService.revokeTokensBySession(refreshToken.getUser(), refreshToken.getSession());
     }
 }
