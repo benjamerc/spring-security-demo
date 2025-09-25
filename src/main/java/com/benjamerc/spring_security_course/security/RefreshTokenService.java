@@ -98,6 +98,6 @@ public class RefreshTokenService {
     private RefreshToken getRefreshTokenOrThrow(String token) {
 
         return refreshTokenRepository.findByToken(token)
-                .orElseThrow(() -> new RefreshTokenNotFoundException("Refresh token not found: " + token));
+                .orElseThrow(() -> new RefreshTokenNotFoundException("Refresh token not found"));
     }
 }
