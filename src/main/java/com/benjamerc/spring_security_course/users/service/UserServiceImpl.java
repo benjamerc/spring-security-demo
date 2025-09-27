@@ -63,7 +63,6 @@ public class UserServiceImpl implements UserService {
         refreshTokenService.revokeAllTokensForUser(user);
     }
 
-
     private User getUserOrThrow(CustomUserDetails userDetails) {
 
         return userRepository.findById(userDetails.getId())
