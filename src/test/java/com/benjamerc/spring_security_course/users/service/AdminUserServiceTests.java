@@ -162,7 +162,7 @@ public class AdminUserServiceTests {
     }
 
     @Test
-    void shouldNotUpdateValueWhenRequestContainsBlankValue() {
+    void shouldNotUpdateValueInPartialUpdateWhenRequestContainsBlankValue() {
 
         User user = UserTestDataProvider.user(1L);
 
