@@ -47,4 +47,9 @@ public class UserTestDataProvider {
 
         return new UserPartialUpdateRequest("", "updated");
     }
+
+    public static UserPartialUpdateRequest userPartialUpdateRequestWithoutValues() {
+
+        return new UserPartialUpdateRequest("", "");
+    }
 }
