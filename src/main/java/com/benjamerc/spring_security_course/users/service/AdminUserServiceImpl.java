@@ -3,6 +3,7 @@ package com.benjamerc.spring_security_course.users.service;
 import com.benjamerc.spring_security_course.users.dto.request.AdminUserUpdateRequest;
 import com.benjamerc.spring_security_course.users.dto.response.AdminUserResponse;
 import com.benjamerc.spring_security_course.users.dto.response.AdminUserSummaryResponse;
+import com.benjamerc.spring_security_course.users.exception.UserNotFoundException;
 import com.benjamerc.spring_security_course.users.model.User;
 import com.benjamerc.spring_security_course.users.mapper.AdminUserMapper;
 import com.benjamerc.spring_security_course.users.repository.UserRepository;
@@ -13,7 +14,6 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
-import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 
 import java.util.Optional;
@@ -85,7 +85,7 @@ public class AdminUserServiceImpl implements AdminUserService {
     private User getUserByIdOrThrow(Long id) {
 
         return userRepository.findById(id)
-                .orElseThrow(() -> new UsernameNotFoundException("User not found with id: " + id));
+                .orElseThrow(() -> new UserNotFoundException("User not found with id: " + id));
     }
 
     private Pageable getSafePageable(Pageable pageable) {
