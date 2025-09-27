@@ -100,6 +100,29 @@ public class UserServiceTests {
     }
 
     @Test
+    void shouldNotUpdateValueInUserProfileWhenRequestContainsBlankValue() {
+
+        User user = UserTestDataProvider.user(1L);
+        CustomUserDetails userDetails = new CustomUserDetails(user);
+
+        UserPartialUpdateRequest updateRequest = UserTestDataProvider.userPartialUpdateRequestWithoutValues();
+        UserPartialUpdateResponse updatedResponse = new UserPartialUpdateResponse(user.getUsername(), user.getName());
+
+        when(userRepository.findById(userDetails.getId())).thenReturn(Optional.of(user));
+        when(userRepository.save(any(User.class))).thenReturn(user);
+        when(userMapper.toUserPartialUpdateResponse(any(User.class))).thenReturn(updatedResponse);
+
+        UserPartialUpdateResponse result = userService.updateProfile(userDetails, updateRequest);
+
+        assertThat(result.username()).isEqualTo(updatedResponse.username());
+        assertThat(result.name()).isEqualTo(updatedResponse.name());
+
+        verify(userRepository).findById(userDetails.getId());
+        verify(userRepository).save(any(User.class));
+        verify(userMapper).toUserPartialUpdateResponse(any(User.class));
+    }
+
+    @Test
     void shouldThrowUserNotFoundWhenUpdateProfileCalledWithNonexistentUserId() {
 
         CustomUserDetails userDetails = new CustomUserDetails(UserTestDataProvider.user(99L));
