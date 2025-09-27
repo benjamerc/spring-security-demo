@@ -33,6 +33,16 @@ public class UserTestDataProvider {
         return new AdminUserUpdateRequest("updated@email.com", "", null);
     }
 
+    public static AdminUserUpdateRequest adminUserUpdateRequestWithoutValues() {
+
+        return new AdminUserUpdateRequest("", "", null);
+    }
+
+    public static AdminUserUpdateRequest adminUserUpdateRequestWithAdminRole() {
+
+        return new AdminUserUpdateRequest("", "", Role.ADMIN);
+    }
+
     public static UserPartialUpdateRequest userPartialUpdateRequest() {
 
         return new UserPartialUpdateRequest("", "updated");
