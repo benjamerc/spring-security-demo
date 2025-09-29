@@ -1,12 +1,9 @@
 package com.benjamerc.spring_security_course.shared.advice;
 
+import com.benjamerc.spring_security_course.authentication.exception.*;
 import com.benjamerc.spring_security_course.shared.dto.error.ApiError;
 import com.benjamerc.spring_security_course.shared.dto.error.FieldError;
 import com.benjamerc.spring_security_course.shared.exception.ErrorCode;
-import com.benjamerc.spring_security_course.authentication.exception.HashingException;
-import com.benjamerc.spring_security_course.authentication.exception.RefreshTokenExpiredException;
-import com.benjamerc.spring_security_course.authentication.exception.RefreshTokenNotFoundException;
-import com.benjamerc.spring_security_course.authentication.exception.RefreshTokenRevokedException;
 import com.benjamerc.spring_security_course.users.exception.UserNotFoundException;
 import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.JwtException;
@@ -124,6 +121,17 @@ public class GlobalExceptionHandler {
         );
     }
 
+    @ExceptionHandler(UsernameAlreadyExistsException.class)
+    public ResponseEntity<ApiError> handleUsernameAlreadyExists(UsernameAlreadyExistsException ex, HttpServletRequest request) {
+
+        return buildErrorResponse(
+                ErrorCode.USERNAME_ALREADY_EXISTS,
+                ex.getMessage(),
+                HttpStatus.NOT_FOUND,
+                request
+        );
+    }
+
     // ===================== Generic Exceptions =====================
 
     @ExceptionHandler(MethodArgumentNotValidException.class)
@@ -158,7 +166,7 @@ public class GlobalExceptionHandler {
         }
 
         return buildErrorResponse(
-                ErrorCode.USERNAME_ALREADY_EXISTS,
+                ErrorCode.DATABASE_ERROR,
                 message,
                 HttpStatus.BAD_REQUEST,
                 request
