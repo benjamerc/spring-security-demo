@@ -8,7 +8,7 @@ import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 
 import java.util.Optional;
 
-import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.*;
 
 @DataJpaTest
 public class UserRepositoryTests {
@@ -25,11 +25,10 @@ public class UserRepositoryTests {
 
         Optional<User> result = userRepository.findByUsername(user.getUsername());
 
-        assertThat(result).isPresent();
-        assertThat(result.get().getId()).isNotNull();
-        assertThat(result.get().getUsername()).isEqualTo(user.getUsername());
-        assertThat(result.get().getName()).isEqualTo(user.getName());
-        assertThat(result.get().getPassword()).isEqualTo(user.getPassword());
-        assertThat(result.get().getRole()).isEqualTo(user.getRole());
+        assertThat(result)
+                .isPresent()
+                .get()
+                .usingRecursiveComparison()
+                .isEqualTo(user);
     }
 }
