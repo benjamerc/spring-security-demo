@@ -6,6 +6,7 @@ import com.benjamerc.spring_security_course.authentication.dto.request.AuthRegis
 import com.benjamerc.spring_security_course.authentication.dto.response.AuthAuthenticateResponse;
 import com.benjamerc.spring_security_course.authentication.dto.response.AuthRegisterResponse;
 import com.benjamerc.spring_security_course.authentication.dto.token.RefreshTokenWithRaw;
+import com.benjamerc.spring_security_course.authentication.exception.UsernameAlreadyExistsException;
 import com.benjamerc.spring_security_course.authentication.model.RefreshToken;
 import com.benjamerc.spring_security_course.users.model.User;
 import com.benjamerc.spring_security_course.authentication.mapper.AuthenticationMapper;
@@ -36,6 +37,11 @@ public class AuthenticationServiceImpl implements AuthenticationService {
 
     @Override
     public AuthRegisterResponse register(AuthRegisterRequest request) {
+
+        if (userRepository.existsByUsername(request.username())) {
+
+            throw new UsernameAlreadyExistsException("Username already exists");
+        }
 
         User user = User.builder()
                 .username(request.username())
