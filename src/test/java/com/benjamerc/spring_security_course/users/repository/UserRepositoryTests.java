@@ -42,7 +42,7 @@ public class UserRepositoryTests {
     }
 
     @Test
-    void shouldThrowConstraintViolationWhenUsernameAlreadyExist() {
+    void shouldThrowDataIntegrityViolationWhenUsernameAlreadyExist() {
 
         User user1 = UserTestDataProvider.user();
         userRepository.save(user1);
