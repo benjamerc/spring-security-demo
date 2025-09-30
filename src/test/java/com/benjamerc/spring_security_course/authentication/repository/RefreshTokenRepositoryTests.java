@@ -42,7 +42,7 @@ public class RefreshTokenRepositoryTests {
     @Test
     void shouldReturnEmptyOptionalForNonexistentToken() {
 
-        Optional<RefreshToken> result = refreshTokenRepository.findByToken("31aed1ca-8bf5-405e-8cc5-bde4bbe91210");
+        Optional<RefreshToken> result = refreshTokenRepository.findByToken(AuthTestDataProvider.REFRESH_TOKEN_STRING);
 
         assertThat(result).isEmpty();
     }
@@ -110,10 +110,9 @@ public class RefreshTokenRepositoryTests {
         User user = UserTestDataProvider.user();
         userRepository.save(user);
 
-        UUID sessionId = UUID.fromString("1e584051-cc15-42ac-a60e-668cd004a25d");
+        UUID sessionId = AuthTestDataProvider.REFRESH_TOKEN_SESSION;
 
         RefreshToken token1 = AuthTestDataProvider.refreshToken(user);
-        token1.setSession(sessionId);
 
         RefreshToken token2 = AuthTestDataProvider.refreshToken(user);
         token2.setToken("31aed1ca-8bf5-405e-8cc5-bde4bbe91210");
