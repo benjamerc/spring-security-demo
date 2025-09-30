@@ -52,4 +52,23 @@ public class UserRepositoryTests {
         assertThatThrownBy(() -> userRepository.save(user2))
                 .isInstanceOf(DataIntegrityViolationException.class);
     }
+
+    @Test
+    void shouldReturnTrueWhenUsernameExists() {
+
+        User user = UserTestDataProvider.user();
+        userRepository.save(user);
+
+        boolean result = userRepository.existsByUsername(user.getUsername());
+
+        assertThat(result).isTrue();
+    }
+
+    @Test
+    void shouldReturnFalseWhenUsernameDoesNotExist() {
+
+        boolean result = userRepository.existsByUsername("inexistent@username.com");
+
+        assertThat(result).isFalse();
+    }
 }
