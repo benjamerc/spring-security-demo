@@ -8,7 +8,6 @@ import com.benjamerc.spring_security_course.authentication.model.RefreshToken;
 import com.benjamerc.spring_security_course.users.model.User;
 
 import java.time.Instant;
-import java.time.temporal.ChronoUnit;
 import java.util.UUID;
 
 public class AuthTestDataProvider {
@@ -16,12 +15,13 @@ public class AuthTestDataProvider {
     public static final String ACCESS_TOKEN = "access-token";
     public static final String REFRESH_TOKEN_STRING = "a976d35e-43f3-4f94-8ae3-9f84652dcc51";
     public static final UUID REFRESH_TOKEN_SESSION = UUID.fromString("1e584051-cc15-42ac-a60e-668cd004a25d");
+    public static final long REFRESH_TOKEN_EXPIRATION = 2592000000L;
 
     public static RefreshToken refreshToken(User user) {
 
         return RefreshToken.builder()
                 .token(REFRESH_TOKEN_STRING)
-                .expiryDate(Instant.now().plus(30, ChronoUnit.DAYS))
+                .expiryDate(Instant.now().plusMillis(REFRESH_TOKEN_EXPIRATION))
                 .session(REFRESH_TOKEN_SESSION)
                 .user(user)
                 .build();
@@ -32,7 +32,7 @@ public class AuthTestDataProvider {
         return RefreshToken.builder()
                 .id(id)
                 .token(REFRESH_TOKEN_STRING)
-                .expiryDate(Instant.now().plus(30, ChronoUnit.DAYS))
+                .expiryDate(Instant.now().plusMillis(REFRESH_TOKEN_EXPIRATION))
                 .session(REFRESH_TOKEN_SESSION)
                 .user(user)
                 .build();
