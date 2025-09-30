@@ -1,6 +1,7 @@
 package com.benjamerc.spring_security_course.users.service;
 
 import com.benjamerc.spring_security_course.authentication.security.RefreshTokenService;
+import com.benjamerc.spring_security_course.security.core.Role;
 import com.benjamerc.spring_security_course.users.UserTestDataProvider;
 import com.benjamerc.spring_security_course.users.dto.request.AdminUserUpdateRequest;
 import com.benjamerc.spring_security_course.users.dto.response.AdminUserResponse;
@@ -166,7 +167,7 @@ public class AdminUserServiceTests {
 
         User user = UserTestDataProvider.user(1L);
 
-        AdminUserUpdateRequest updateRequest = UserTestDataProvider.adminUserUpdateRequestWithoutValues();
+        AdminUserUpdateRequest updateRequest = UserTestDataProvider.adminUserUpdateRequest("", "", null);
 
         AdminUserResponse response =
                 new AdminUserResponse(user.getId(), user.getUsername(), user.getName(), user.getRole());
@@ -191,7 +192,7 @@ public class AdminUserServiceTests {
 
         User user = UserTestDataProvider.user(1L);
 
-        AdminUserUpdateRequest updateRequest = UserTestDataProvider.adminUserUpdateRequestWithAdminRole();
+        AdminUserUpdateRequest updateRequest = UserTestDataProvider.adminUserUpdateRequest("", "", Role.ADMIN);
 
         AdminUserResponse response =
                 new AdminUserResponse(user.getId(), user.getUsername(), user.getName(), user.getRole());
