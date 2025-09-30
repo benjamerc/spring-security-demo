@@ -105,7 +105,7 @@ public class UserServiceTests {
         User user = UserTestDataProvider.user(1L);
         CustomUserDetails userDetails = new CustomUserDetails(user);
 
-        UserPartialUpdateRequest updateRequest = UserTestDataProvider.userPartialUpdateRequestWithoutValues();
+        UserPartialUpdateRequest updateRequest = UserTestDataProvider.userPartialUpdateRequest("", "");
         UserPartialUpdateResponse updatedResponse = new UserPartialUpdateResponse(user.getUsername(), user.getName());
 
         when(userRepository.findById(userDetails.getId())).thenReturn(Optional.of(user));
