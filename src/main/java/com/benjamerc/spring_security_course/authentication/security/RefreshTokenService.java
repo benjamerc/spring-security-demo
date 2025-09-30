@@ -82,18 +82,24 @@ public class RefreshTokenService {
 
         List<RefreshToken> tokens = refreshTokenRepository.findAllByUserAndSessionAndRevokedFalse(user, session);
 
-        tokens.forEach(t -> t.setRevoked(true));
+        if (!tokens.isEmpty()) {
 
-        refreshTokenRepository.saveAll(tokens);
+            tokens.forEach(t -> t.setRevoked(true));
+
+            refreshTokenRepository.saveAll(tokens);
+        }
     }
 
     public void revokeAllTokensForUser(User user) {
 
         List<RefreshToken> refreshTokens = refreshTokenRepository.findAllByUserAndRevokedFalse(user);
 
-        refreshTokens.forEach(t -> t.setRevoked(true));
+        if (!refreshTokens.isEmpty()) {
 
-        refreshTokenRepository.saveAll(refreshTokens);
+            refreshTokens.forEach(t -> t.setRevoked(true));
+
+            refreshTokenRepository.saveAll(refreshTokens);
+        }
     }
 
     private RefreshToken getRefreshTokenOrThrow(String token) {
