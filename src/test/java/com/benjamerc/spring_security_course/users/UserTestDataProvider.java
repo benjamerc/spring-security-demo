@@ -33,14 +33,9 @@ public class UserTestDataProvider {
         return new AdminUserUpdateRequest("updated@email.com", "", null);
     }
 
-    public static AdminUserUpdateRequest adminUserUpdateRequestWithoutValues() {
+    public static AdminUserUpdateRequest adminUserUpdateRequest(String username, String name, Role role) {
 
-        return new AdminUserUpdateRequest("", "", null);
-    }
-
-    public static AdminUserUpdateRequest adminUserUpdateRequestWithAdminRole() {
-
-        return new AdminUserUpdateRequest("", "", Role.ADMIN);
+        return new AdminUserUpdateRequest(username, name, role);
     }
 
     public static UserPartialUpdateRequest userPartialUpdateRequest() {
@@ -48,8 +43,8 @@ public class UserTestDataProvider {
         return new UserPartialUpdateRequest("", "updated");
     }
 
-    public static UserPartialUpdateRequest userPartialUpdateRequestWithoutValues() {
+    public static UserPartialUpdateRequest userPartialUpdateRequest(String username, String name) {
 
-        return new UserPartialUpdateRequest("", "");
+        return new UserPartialUpdateRequest(username, name);
     }
 }
