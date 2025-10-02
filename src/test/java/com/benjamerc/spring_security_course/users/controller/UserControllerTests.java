@@ -48,12 +48,10 @@ public class UserControllerTests {
     @Test
     void shouldReturn200AndUserProfile() throws Exception {
 
-        User user = UserTestDataProvider.user(1L);
-
-        CustomUserDetails userDetails = new CustomUserDetails(user);
+        CustomUserDetails userDetails = UserTestDataProvider.testUser(1L);
 
         UserProfileResponse profileResponse =
-                new UserProfileResponse(user.getUsername(), user.getName());
+                new UserProfileResponse(userDetails.getUser().getUsername(), userDetails.getUser().getName());
 
         when(userService.userProfile(userDetails)).thenReturn(profileResponse);
 
@@ -69,12 +67,10 @@ public class UserControllerTests {
     @Test
     void shouldThrow404WhenUserProfileCalledWithNonexistentUser() throws Exception {
 
-        User nonexistentUser = UserTestDataProvider.user(99L);
-
-        CustomUserDetails userDetails = new CustomUserDetails(nonexistentUser);
+        CustomUserDetails userDetails = UserTestDataProvider.testUser(1L);
 
         when(userService.userProfile(any(CustomUserDetails.class)))
-                .thenThrow(new UserNotFoundException("User not found with id: " + nonexistentUser.getId()));
+                .thenThrow(new UserNotFoundException("User not found with id: " + userDetails.getUser().getId()));
 
         mockMvc.perform(get("/api/user/me")
                         .with(user(userDetails)))
@@ -86,15 +82,13 @@ public class UserControllerTests {
     @Test
     void shouldReturn200AndUpdatedUserProfile() throws Exception {
 
-        User user = UserTestDataProvider.user(1L);
-
-        CustomUserDetails userDetails = new CustomUserDetails(user);
+        CustomUserDetails userDetails = UserTestDataProvider.testUser(1L);
 
         UserPartialUpdateRequest updateRequest =
                 UserTestDataProvider.userPartialUpdateRequest();
 
         UserPartialUpdateResponse updateResponse =
-                new UserPartialUpdateResponse(user.getUsername(), updateRequest.name());
+                new UserPartialUpdateResponse(userDetails.getUser().getUsername(), updateRequest.name());
 
         when(userService.updateProfile(any(CustomUserDetails.class), any(UserPartialUpdateRequest.class))).thenReturn(updateResponse);
 
@@ -109,14 +103,12 @@ public class UserControllerTests {
     @Test
     void shouldThrow404WhenUpdateProfileCalledWithNonexistentUser() throws Exception {
 
-        User nonexistentUser = UserTestDataProvider.user(99L);
-
-        CustomUserDetails userDetails = new CustomUserDetails(nonexistentUser);
+        CustomUserDetails userDetails = UserTestDataProvider.testUser(99L);
 
         UserPartialUpdateRequest updateRequest = UserTestDataProvider.userPartialUpdateRequest();
 
         when(userService.updateProfile(any(CustomUserDetails.class), any(UserPartialUpdateRequest.class)))
-                .thenThrow(new UserNotFoundException("User not found with id: " + nonexistentUser.getId()));
+                .thenThrow(new UserNotFoundException("User not found with id: " + userDetails.getUser().getId()));
 
         performPatch("/api/user/me", updateRequest, userDetails)
                 .andExpect(status().isNotFound());
@@ -127,9 +119,7 @@ public class UserControllerTests {
     @Test
     void shouldThrow400WhenUpdateProfileCalledWithInvalidDto() throws Exception {
 
-        User user = UserTestDataProvider.user(1L);
-
-        CustomUserDetails userDetails = new CustomUserDetails(user);
+        CustomUserDetails userDetails = UserTestDataProvider.testUser(1L);
 
         UserPartialUpdateRequest updateRequest = UserTestDataProvider.userPartialUpdateRequest(null, "");
 
@@ -142,9 +132,7 @@ public class UserControllerTests {
     @Test
     void shouldThrow400WhenUpdateProfileCalledWithExistentUsername() throws Exception {
 
-        User user = UserTestDataProvider.user(1L);
-
-        CustomUserDetails userDetails = new CustomUserDetails(user);
+        CustomUserDetails userDetails = UserTestDataProvider.testUser(1L);
 
         UserPartialUpdateRequest updateRequest = UserTestDataProvider.userPartialUpdateRequest("existent@email.com", null);
 
@@ -160,9 +148,7 @@ public class UserControllerTests {
     @Test
     void shouldReturn204AndDeleteUserAccount() throws Exception {
 
-        User user = UserTestDataProvider.user(1L);
-
-        CustomUserDetails userDetails = new CustomUserDetails(user);
+        CustomUserDetails userDetails = UserTestDataProvider.testUser(1L);
 
         performDelete("/api/user/me", userDetails)
                 .andExpect(status().isNoContent());
@@ -171,9 +157,7 @@ public class UserControllerTests {
     @Test
     void shouldThrow404WhenDeleteAccountCalledWithNonexistentUser() throws Exception {
 
-        User nonexistentUser = UserTestDataProvider.user(99L);
-
-        CustomUserDetails userDetails = new CustomUserDetails(nonexistentUser);
+        CustomUserDetails userDetails = UserTestDataProvider.testUser(99L);
 
         doThrow(new UserNotFoundException("User not found"))
                 .when(userService).deleteAccount(any(CustomUserDetails.class));
@@ -187,9 +171,7 @@ public class UserControllerTests {
     @Test
     void shouldReturn204AndLogoutAllUserSessions() throws Exception {
 
-        User nonexistentUser = UserTestDataProvider.user(99L);
-
-        CustomUserDetails userDetails = new CustomUserDetails(nonexistentUser);
+        CustomUserDetails userDetails = UserTestDataProvider.testUser(1L);
 
         performPost("/api/user/me/logout-all", userDetails)
                 .andExpect(status().isNoContent());
@@ -198,9 +180,7 @@ public class UserControllerTests {
     @Test
     void shouldThrow404AndLogoutAllUserSessions() throws Exception {
 
-        User nonexistentUser = UserTestDataProvider.user(99L);
-
-        CustomUserDetails userDetails = new CustomUserDetails(nonexistentUser);
+        CustomUserDetails userDetails = UserTestDataProvider.testUser(99L);
 
         doThrow(new UserNotFoundException("User not found"))
                 .when(userService).logoutAll(any(CustomUserDetails.class));
