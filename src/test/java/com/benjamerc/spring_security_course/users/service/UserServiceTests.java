@@ -40,51 +40,50 @@ public class UserServiceTests {
     @Test
     void shouldReturnUserProfile() {
 
-        User user = UserTestDataProvider.user(1L);
-        CustomUserDetails userDetails = new CustomUserDetails(user);
+        CustomUserDetails userDetails = UserTestDataProvider.testUser(1L);
 
-        UserProfileResponse profileResponse = new UserProfileResponse(user.getUsername(), user.getName());
+        UserProfileResponse profileResponse =
+                new UserProfileResponse(userDetails.getUser().getUsername(), userDetails.getUser().getName());
 
-        when(userRepository.findById(userDetails.getId())).thenReturn(Optional.of(user));
-        when(userMapper.toUserProfileResponse(user)).thenReturn(profileResponse);
+        when(userRepository.findById(userDetails.getUser().getId())).thenReturn(Optional.of(userDetails.getUser()));
+        when(userMapper.toUserProfileResponse(userDetails.getUser())).thenReturn(profileResponse);
 
         UserProfileResponse result = userService.userProfile(userDetails);
 
         assertThat(result).isNotNull();
-        assertThat(result.name()).isEqualTo(user.getName());
-        assertThat(result.username()).isEqualTo(user.getUsername());
+        assertThat(result.name()).isEqualTo(userDetails.getUser().getName());
+        assertThat(result.username()).isEqualTo(userDetails.getUser().getUsername());
 
-        verify(userRepository).findById(userDetails.getId());
-        verify(userMapper).toUserProfileResponse(user);
+        verify(userRepository).findById(userDetails.getUser().getId());
+        verify(userMapper).toUserProfileResponse(userDetails.getUser());
     }
 
     @Test
     void shouldThrowUserNotFoundWhenUserProfileCalledWithNonexistentUserId() {
 
-        CustomUserDetails userDetails = new CustomUserDetails(UserTestDataProvider.user(99L));
+        CustomUserDetails userDetails = UserTestDataProvider.testUser(99L);
 
-        when(userRepository.findById(userDetails.getId())).thenReturn(Optional.empty());
+        when(userRepository.findById(userDetails.getUser().getId())).thenReturn(Optional.empty());
 
         assertThatThrownBy(() -> userService.userProfile(userDetails))
                 .isInstanceOf(UserNotFoundException.class)
-                .hasMessage("User not found with id: " + userDetails.getId());
+                .hasMessage("User not found with id: " + userDetails.getUser().getId());
 
-        verify(userRepository).findById(userDetails.getId());
+        verify(userRepository).findById(userDetails.getUser().getId());
     }
 
     @Test
     void shouldUpdateUserProfile() {
 
-        User user = UserTestDataProvider.user(1L);
-        CustomUserDetails userDetails = new CustomUserDetails(user);
+        CustomUserDetails userDetails = UserTestDataProvider.testUser(1L);
 
         UserPartialUpdateRequest updateRequest = UserTestDataProvider.userPartialUpdateRequest();
-        UserPartialUpdateResponse updatedResponse = new UserPartialUpdateResponse(user.getUsername(), updateRequest.name());
+        UserPartialUpdateResponse updatedResponse = new UserPartialUpdateResponse(userDetails.getUser().getUsername(), updateRequest.name());
 
         User updatedUser = UserTestDataProvider.user(1L);
         updatedUser.setName(updateRequest.name());
 
-        when(userRepository.findById(userDetails.getId())).thenReturn(Optional.of(user));
+        when(userRepository.findById(userDetails.getUser().getId())).thenReturn(Optional.of(userDetails.getUser()));
         when(userRepository.save(any(User.class))).thenReturn(updatedUser);
         when(userMapper.toUserPartialUpdateResponse(any(User.class))).thenReturn(updatedResponse);
 
@@ -94,7 +93,7 @@ public class UserServiceTests {
         assertThat(result.username()).isEqualTo(updatedResponse.username());
         assertThat(result.name()).isEqualTo(updatedResponse.name());
 
-        verify(userRepository).findById(userDetails.getId());
+        verify(userRepository).findById(userDetails.getUser().getId());
         verify(userRepository).save(any(User.class));
         verify(userMapper).toUserPartialUpdateResponse(any(User.class));
     }
@@ -102,14 +101,13 @@ public class UserServiceTests {
     @Test
     void shouldNotUpdateValueInUserProfileWhenRequestContainsBlankValue() {
 
-        User user = UserTestDataProvider.user(1L);
-        CustomUserDetails userDetails = new CustomUserDetails(user);
+        CustomUserDetails userDetails = UserTestDataProvider.testUser(1L);
 
         UserPartialUpdateRequest updateRequest = UserTestDataProvider.userPartialUpdateRequest("", "");
-        UserPartialUpdateResponse updatedResponse = new UserPartialUpdateResponse(user.getUsername(), user.getName());
+        UserPartialUpdateResponse updatedResponse = new UserPartialUpdateResponse(userDetails.getUser().getUsername(), userDetails.getUser().getName());
 
-        when(userRepository.findById(userDetails.getId())).thenReturn(Optional.of(user));
-        when(userRepository.save(any(User.class))).thenReturn(user);
+        when(userRepository.findById(userDetails.getId())).thenReturn(Optional.of(userDetails.getUser()));
+        when(userRepository.save(any(User.class))).thenReturn(userDetails.getUser());
         when(userMapper.toUserPartialUpdateResponse(any(User.class))).thenReturn(updatedResponse);
 
         UserPartialUpdateResponse result = userService.updateProfile(userDetails, updateRequest);
@@ -117,7 +115,7 @@ public class UserServiceTests {
         assertThat(result.username()).isEqualTo(updatedResponse.username());
         assertThat(result.name()).isEqualTo(updatedResponse.name());
 
-        verify(userRepository).findById(userDetails.getId());
+        verify(userRepository).findById(userDetails.getUser().getId());
         verify(userRepository).save(any(User.class));
         verify(userMapper).toUserPartialUpdateResponse(any(User.class));
     }
@@ -125,73 +123,71 @@ public class UserServiceTests {
     @Test
     void shouldThrowUserNotFoundWhenUpdateProfileCalledWithNonexistentUserId() {
 
-        CustomUserDetails userDetails = new CustomUserDetails(UserTestDataProvider.user(99L));
+        CustomUserDetails userDetails = UserTestDataProvider.testUser(99L);
         UserPartialUpdateRequest updateRequest = UserTestDataProvider.userPartialUpdateRequest();
 
-        when(userRepository.findById(userDetails.getId())).thenReturn(Optional.empty());
+        when(userRepository.findById(userDetails.getUser().getId())).thenReturn(Optional.empty());
 
         assertThatThrownBy(() -> userService.updateProfile(userDetails, updateRequest))
                 .isInstanceOf(UserNotFoundException.class)
-                .hasMessage("User not found with id: " + userDetails.getId());
+                .hasMessage("User not found with id: " + userDetails.getUser().getId());
 
-        verify(userRepository).findById(userDetails.getId());
+        verify(userRepository).findById(userDetails.getUser().getId());
     }
 
     @Test
     void shouldDeleteUserAccount() {
 
-        User user = UserTestDataProvider.user(1L);
-        CustomUserDetails userDetails = new CustomUserDetails(user);
+        CustomUserDetails userDetails = UserTestDataProvider.testUser(1L);
 
-        when(userRepository.findById(userDetails.getId())).thenReturn(Optional.of(user));
-        doNothing().when(userRepository).delete(eq(user));
+        when(userRepository.findById(userDetails.getId())).thenReturn(Optional.of(userDetails.getUser()));
+        doNothing().when(userRepository).delete(eq(userDetails.getUser()));
 
         userService.deleteAccount(userDetails);
 
-        verify(userRepository).findById(userDetails.getId());
-        verify(userRepository).delete(eq(user));
+        verify(userRepository).findById(userDetails.getUser().getId());
+        verify(userRepository).delete(eq(userDetails.getUser()));
     }
 
     @Test
     void shouldThrowUserNotFoundWhenDeleteAccountCalledWithNonexistentUserId() {
 
-        CustomUserDetails userDetails = new CustomUserDetails(UserTestDataProvider.user(99L));
+        CustomUserDetails userDetails = UserTestDataProvider.testUser(99L);
 
-        when(userRepository.findById(userDetails.getId())).thenReturn(Optional.empty());
+        when(userRepository.findById(userDetails.getUser().getId())).thenReturn(Optional.empty());
 
         assertThatThrownBy(() -> userService.deleteAccount(userDetails))
                 .isInstanceOf(UserNotFoundException.class)
-                .hasMessage("User not found with id: " + userDetails.getId());
+                .hasMessage("User not found with id: " + userDetails.getUser().getId());
 
-        verify(userRepository).findById(userDetails.getId());
+        verify(userRepository).findById(userDetails.getUser().getId());
     }
 
     @Test
     void shouldLogoutAllUserAccounts() {
 
-        User user = UserTestDataProvider.user(1L);
-        CustomUserDetails userDetails = new CustomUserDetails(user);
+        CustomUserDetails userDetails = UserTestDataProvider.testUser(1L);
 
-        when(userRepository.findById(userDetails.getId())).thenReturn(Optional.of(user));
-        doNothing().when(refreshTokenService).revokeAllTokensForUser(eq(user));
+        when(userRepository.findById(userDetails.getUser().getId())).thenReturn(Optional.of(userDetails.getUser()));
+        doNothing().when(refreshTokenService).revokeAllTokensForUser(eq(userDetails.getUser()));
 
         userService.logoutAll(userDetails);
 
-        verify(userRepository).findById(userDetails.getId());
-        verify(refreshTokenService).revokeAllTokensForUser(eq(user));
+        verify(userRepository).findById(userDetails.getUser().getId());
+        verify(refreshTokenService).revokeAllTokensForUser(eq(userDetails.getUser()));
     }
 
     @Test
     void shouldThrowUserNotFoundWhenLogoutAllCalledWithNonexistentUserId() {
 
-        CustomUserDetails userDetails = new CustomUserDetails(UserTestDataProvider.user(99L));
+        CustomUserDetails userDetails = UserTestDataProvider.testUser(99L);
 
-        when(userRepository.findById(userDetails.getId())).thenReturn(Optional.empty());
+        when(userRepository.findById(userDetails.getUser().getId())).thenReturn(Optional.empty());
 
         assertThatThrownBy(() -> userService.logoutAll(userDetails))
                 .isInstanceOf(UserNotFoundException.class)
-                .hasMessage("User not found with id: " + userDetails.getId());
+                .hasMessage("User not found with id: " + userDetails.getUser().getId());
 
-        verify(userRepository).findById(userDetails.getId());
+        verify(userRepository).findById(userDetails.getUser().getId());
     }
 }
