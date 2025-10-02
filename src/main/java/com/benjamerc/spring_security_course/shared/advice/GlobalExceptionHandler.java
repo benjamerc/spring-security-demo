@@ -14,6 +14,8 @@ import org.hibernate.exception.ConstraintViolationException;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.authentication.BadCredentialsException;
+import org.springframework.security.authorization.AuthorizationDeniedException;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.MethodArgumentNotValidException;
@@ -58,6 +60,28 @@ public class GlobalExceptionHandler {
                 ErrorCode.ACCESS_TOKEN_INVALID,
                 "The access token is invalid",
                 HttpStatus.UNAUTHORIZED,
+                request
+        );
+    }
+
+    @ExceptionHandler(BadCredentialsException.class)
+    public ResponseEntity<ApiError> handleBadCredentials(BadCredentialsException ex, HttpServletRequest request) {
+
+        return buildErrorResponse(
+                ErrorCode.BAD_CREDENTIALS,
+                "Invalid username or password.",
+                HttpStatus.UNAUTHORIZED,
+                request
+        );
+    }
+
+    @ExceptionHandler(AuthorizationDeniedException.class)
+    public ResponseEntity<ApiError> handleAuthorizationDenied(AuthorizationDeniedException ex, HttpServletRequest request) {
+
+        return buildErrorResponse(
+                ErrorCode.AUTHORIZATION_DENIED,
+                "You do not have permission to access this resource.",
+                HttpStatus.FORBIDDEN,
                 request
         );
     }
@@ -127,7 +151,7 @@ public class GlobalExceptionHandler {
         return buildErrorResponse(
                 ErrorCode.USERNAME_ALREADY_EXISTS,
                 ex.getMessage(),
-                HttpStatus.NOT_FOUND,
+                HttpStatus.BAD_REQUEST,
                 request
         );
     }
