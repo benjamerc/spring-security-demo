@@ -51,7 +51,7 @@ public class UserControllerTests {
         CustomUserDetails userDetails = UserTestDataProvider.testUser(1L);
 
         UserProfileResponse profileResponse =
-                new UserProfileResponse(userDetails.getUser().getUsername(), userDetails.getUser().getName());
+                new UserProfileResponse(userDetails.getUsername(), userDetails.getUser().getName());
 
         when(userService.userProfile(userDetails)).thenReturn(profileResponse);
 
@@ -88,7 +88,7 @@ public class UserControllerTests {
                 UserTestDataProvider.userPartialUpdateRequest();
 
         UserPartialUpdateResponse updateResponse =
-                new UserPartialUpdateResponse(userDetails.getUser().getUsername(), updateRequest.name());
+                new UserPartialUpdateResponse(userDetails.getUsername(), updateRequest.name());
 
         when(userService.updateProfile(any(CustomUserDetails.class), any(UserPartialUpdateRequest.class))).thenReturn(updateResponse);
 
