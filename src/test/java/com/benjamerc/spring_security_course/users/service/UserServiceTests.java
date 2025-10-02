@@ -1,5 +1,6 @@
 package com.benjamerc.spring_security_course.users.service;
 
+import com.benjamerc.spring_security_course.authentication.exception.UsernameAlreadyExistsException;
 import com.benjamerc.spring_security_course.authentication.security.RefreshTokenService;
 import com.benjamerc.spring_security_course.security.core.CustomUserDetails;
 import com.benjamerc.spring_security_course.users.UserTestDataProvider;
@@ -133,6 +134,25 @@ public class UserServiceTests {
                 .hasMessage("User not found with id: " + userDetails.getUser().getId());
 
         verify(userRepository).findById(userDetails.getUser().getId());
+    }
+
+    @Test
+    void shouldThrowUsernameAlreadyExistsWhenUpdateProfileCalledWithExistingUsername() {
+
+        CustomUserDetails userDetails = UserTestDataProvider.testUser(1L);
+        UserPartialUpdateRequest updateRequest = UserTestDataProvider.userPartialUpdateRequest();
+
+        when(userRepository.findById(userDetails.getUser().getId())).thenReturn(Optional.of(userDetails.getUser()));
+        when(userRepository.existsByUsername(updateRequest.username()))
+                .thenReturn(true);
+
+        assertThatThrownBy(() -> userService.updateProfile(userDetails, updateRequest))
+                .isInstanceOf(UsernameAlreadyExistsException.class)
+                .hasMessage("Username already exists");
+
+        verify(userRepository).findById(userDetails.getUser().getId());
+        verify(userRepository).existsByUsername(updateRequest.username());
+        verify(userRepository, never()).save(any(User.class));
     }
 
     @Test
