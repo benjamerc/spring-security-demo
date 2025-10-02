@@ -43,7 +43,7 @@ public class UserServiceTests {
         CustomUserDetails userDetails = UserTestDataProvider.testUser(1L);
 
         UserProfileResponse profileResponse =
-                new UserProfileResponse(userDetails.getUser().getUsername(), userDetails.getUser().getName());
+                new UserProfileResponse(userDetails.getUsername(), userDetails.getUser().getName());
 
         when(userRepository.findById(userDetails.getUser().getId())).thenReturn(Optional.of(userDetails.getUser()));
         when(userMapper.toUserProfileResponse(userDetails.getUser())).thenReturn(profileResponse);
@@ -52,7 +52,7 @@ public class UserServiceTests {
 
         assertThat(result).isNotNull();
         assertThat(result.name()).isEqualTo(userDetails.getUser().getName());
-        assertThat(result.username()).isEqualTo(userDetails.getUser().getUsername());
+        assertThat(result.username()).isEqualTo(userDetails.getUsername());
 
         verify(userRepository).findById(userDetails.getUser().getId());
         verify(userMapper).toUserProfileResponse(userDetails.getUser());
@@ -78,7 +78,7 @@ public class UserServiceTests {
         CustomUserDetails userDetails = UserTestDataProvider.testUser(1L);
 
         UserPartialUpdateRequest updateRequest = UserTestDataProvider.userPartialUpdateRequest();
-        UserPartialUpdateResponse updatedResponse = new UserPartialUpdateResponse(userDetails.getUser().getUsername(), updateRequest.name());
+        UserPartialUpdateResponse updatedResponse = new UserPartialUpdateResponse(userDetails.getUsername(), updateRequest.name());
 
         User updatedUser = UserTestDataProvider.user(1L);
         updatedUser.setName(updateRequest.name());
@@ -104,9 +104,9 @@ public class UserServiceTests {
         CustomUserDetails userDetails = UserTestDataProvider.testUser(1L);
 
         UserPartialUpdateRequest updateRequest = UserTestDataProvider.userPartialUpdateRequest("", "");
-        UserPartialUpdateResponse updatedResponse = new UserPartialUpdateResponse(userDetails.getUser().getUsername(), userDetails.getUser().getName());
+        UserPartialUpdateResponse updatedResponse = new UserPartialUpdateResponse(userDetails.getUsername(), userDetails.getUser().getName());
 
-        when(userRepository.findById(userDetails.getId())).thenReturn(Optional.of(userDetails.getUser()));
+        when(userRepository.findById(userDetails.getUser().getId())).thenReturn(Optional.of(userDetails.getUser()));
         when(userRepository.save(any(User.class))).thenReturn(userDetails.getUser());
         when(userMapper.toUserPartialUpdateResponse(any(User.class))).thenReturn(updatedResponse);
 
@@ -140,7 +140,7 @@ public class UserServiceTests {
 
         CustomUserDetails userDetails = UserTestDataProvider.testUser(1L);
 
-        when(userRepository.findById(userDetails.getId())).thenReturn(Optional.of(userDetails.getUser()));
+        when(userRepository.findById(userDetails.getUser().getId())).thenReturn(Optional.of(userDetails.getUser()));
         doNothing().when(userRepository).delete(eq(userDetails.getUser()));
 
         userService.deleteAccount(userDetails);
