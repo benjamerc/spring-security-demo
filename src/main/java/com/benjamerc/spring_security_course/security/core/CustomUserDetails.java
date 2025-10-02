@@ -1,6 +1,7 @@
 package com.benjamerc.spring_security_course.security.core;
 
 import com.benjamerc.spring_security_course.users.model.User;
+import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
@@ -10,6 +11,7 @@ import java.util.Collection;
 import java.util.List;
 
 @RequiredArgsConstructor
+@Getter
 public class CustomUserDetails implements UserDetails {
 
     private final User user;
@@ -48,17 +50,5 @@ public class CustomUserDetails implements UserDetails {
     @Override
     public boolean isEnabled() {
         return true;
-    }
-
-    public Role getRole() {
-        return user.getRole();
-    }
-
-    public Long getId() {
-        return user.getId();
-    }
-
-    public User getUser() {
-        return user;
     }
 }
