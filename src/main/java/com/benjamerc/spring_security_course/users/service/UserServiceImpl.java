@@ -1,5 +1,6 @@
 package com.benjamerc.spring_security_course.users.service;
 
+import com.benjamerc.spring_security_course.authentication.exception.UsernameAlreadyExistsException;
 import com.benjamerc.spring_security_course.users.dto.request.UserPartialUpdateRequest;
 import com.benjamerc.spring_security_course.users.dto.response.UserPartialUpdateResponse;
 import com.benjamerc.spring_security_course.users.dto.response.UserProfileResponse;
@@ -35,6 +36,11 @@ public class UserServiceImpl implements UserService {
     public UserPartialUpdateResponse updateProfile(@AuthenticationPrincipal CustomUserDetails userDetails, UserPartialUpdateRequest request) {
 
         User user = getUserOrThrow(userDetails);
+
+        if (userRepository.existsByUsername(request.username())) {
+
+            throw new UsernameAlreadyExistsException("Username already exists");
+        }
 
         Optional.ofNullable(request.username())
                 .filter(u -> !u.isBlank())
