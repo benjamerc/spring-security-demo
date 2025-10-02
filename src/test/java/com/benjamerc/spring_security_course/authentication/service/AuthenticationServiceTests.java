@@ -109,26 +109,25 @@ public class AuthenticationServiceTests {
     @Test
     void shouldAuthenticateUser() {
 
-        User user = UserTestDataProvider.user(1L);
-        CustomUserDetails userDetails = new CustomUserDetails(user);
+        CustomUserDetails userDetails = UserTestDataProvider.testUser(1L);
 
         Authentication authenticationMock = mock(Authentication.class);
 
         String accessToken = AuthTestDataProvider.ACCESS_TOKEN;
-        RefreshToken refreshToken = AuthTestDataProvider.refreshToken(user);
+        RefreshToken refreshToken = AuthTestDataProvider.refreshToken(userDetails.getUser());
 
         RefreshTokenWithRaw refreshTokenWithRaw = AuthTestDataProvider.refreshTokenWithRaw(refreshToken, refreshToken.getToken());
 
         AuthAuthenticateRequest authenticateRequest =
-                AuthTestDataProvider.authAuthenticateRequest(user.getUsername(), user.getPassword());
+                AuthTestDataProvider.authAuthenticateRequest(userDetails.getUser().getUsername(), userDetails.getUser().getPassword());
 
         AuthAuthenticateResponse authenticateResponse =
                 new AuthAuthenticateResponse(accessToken, refreshToken.getToken());
 
         when(authenticationMock.getPrincipal()).thenReturn(userDetails);
         when(authenticationManager.authenticate(any(UsernamePasswordAuthenticationToken.class))).thenReturn(authenticationMock);
-        when(accessTokenService.createAccessToken(user)).thenReturn(accessToken);
-        when(refreshTokenService.createRefreshToken(eq(user), any(UUID.class))).thenReturn(refreshTokenWithRaw);
+        when(accessTokenService.createAccessToken(userDetails.getUser())).thenReturn(accessToken);
+        when(refreshTokenService.createRefreshToken(eq(userDetails.getUser()), any(UUID.class))).thenReturn(refreshTokenWithRaw);
 
         AuthAuthenticateResponse result = authenticationService.login(authenticateRequest);
 
@@ -136,8 +135,8 @@ public class AuthenticationServiceTests {
         assertThat(result).usingRecursiveComparison().isEqualTo(authenticateResponse);
 
         verify(authenticationManager).authenticate(any(UsernamePasswordAuthenticationToken.class));
-        verify(accessTokenService).createAccessToken(user);
-        verify(refreshTokenService).createRefreshToken(eq(user), any(UUID.class));
+        verify(accessTokenService).createAccessToken(userDetails.getUser());
+        verify(refreshTokenService).createRefreshToken(eq(userDetails.getUser()), any(UUID.class));
     }
 
     @Test
