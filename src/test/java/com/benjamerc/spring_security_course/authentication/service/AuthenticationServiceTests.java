@@ -119,7 +119,7 @@ public class AuthenticationServiceTests {
         RefreshTokenWithRaw refreshTokenWithRaw = AuthTestDataProvider.refreshTokenWithRaw(refreshToken, refreshToken.getToken());
 
         AuthAuthenticateRequest authenticateRequest =
-                AuthTestDataProvider.authAuthenticateRequest(userDetails.getUser().getUsername(), userDetails.getUser().getPassword());
+                AuthTestDataProvider.authAuthenticateRequest(userDetails.getUsername(), userDetails.getPassword());
 
         AuthAuthenticateResponse authenticateResponse =
                 new AuthAuthenticateResponse(accessToken, refreshToken.getToken());
