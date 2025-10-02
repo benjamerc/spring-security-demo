@@ -71,7 +71,7 @@ public class UserServiceImpl implements UserService {
 
     private User getUserOrThrow(CustomUserDetails userDetails) {
 
-        return userRepository.findById(userDetails.getId())
-                .orElseThrow(() -> new UserNotFoundException("User not found with id: " + userDetails.getId()));
+        return userRepository.findById(userDetails.getUser().getId())
+                .orElseThrow(() -> new UserNotFoundException("User not found with id: " + userDetails.getUser().getId()));
     }
 }
