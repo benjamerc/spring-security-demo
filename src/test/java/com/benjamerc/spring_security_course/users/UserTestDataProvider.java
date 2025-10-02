@@ -1,5 +1,6 @@
 package com.benjamerc.spring_security_course.users;
 
+import com.benjamerc.spring_security_course.security.core.CustomUserDetails;
 import com.benjamerc.spring_security_course.security.core.Role;
 import com.benjamerc.spring_security_course.users.dto.request.AdminUserUpdateRequest;
 import com.benjamerc.spring_security_course.users.dto.request.UserPartialUpdateRequest;
@@ -26,6 +27,11 @@ public class UserTestDataProvider {
                 .password("pass123")
                 .role(Role.USER)
                 .build();
+    }
+
+    public static CustomUserDetails testUser(Long id) {
+
+        return new CustomUserDetails(UserTestDataProvider.user(id));
     }
 
     public static AdminUserUpdateRequest adminUserUpdateRequest() {
