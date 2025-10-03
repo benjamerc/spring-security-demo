@@ -1,5 +1,6 @@
 package com.benjamerc.spring_security_course.users.service;
 
+import com.benjamerc.spring_security_course.authentication.exception.UsernameAlreadyExistsException;
 import com.benjamerc.spring_security_course.users.dto.request.AdminUserUpdateRequest;
 import com.benjamerc.spring_security_course.users.dto.response.AdminUserResponse;
 import com.benjamerc.spring_security_course.users.dto.response.AdminUserSummaryResponse;
@@ -48,6 +49,11 @@ public class AdminUserServiceImpl implements AdminUserService {
 
     @Override
     public AdminUserResponse partialUpdate(Long id, AdminUserUpdateRequest request) {
+
+        if (userRepository.existsByUsername(request.username())) {
+
+            throw new UsernameAlreadyExistsException("Username already exists");
+        }
 
         User user = getUserByIdOrThrow(id);
 
