@@ -20,7 +20,7 @@ public class UserRepositoryTests {
     @Test
     void shouldReturnUserByUsername() {
 
-        User user = UserTestDataProvider.user();
+        User user = UserTestDataProvider.user(null);
 
         userRepository.save(user);
 
@@ -44,10 +44,10 @@ public class UserRepositoryTests {
     @Test
     void shouldThrowDataIntegrityViolationWhenUsernameAlreadyExist() {
 
-        User user1 = UserTestDataProvider.user();
+        User user1 = UserTestDataProvider.user(null);
         userRepository.save(user1);
 
-        User user2 = UserTestDataProvider.user();
+        User user2 = UserTestDataProvider.user(null);
 
         assertThatThrownBy(() -> userRepository.save(user2))
                 .isInstanceOf(DataIntegrityViolationException.class);
@@ -56,7 +56,7 @@ public class UserRepositoryTests {
     @Test
     void shouldReturnTrueWhenUsernameExists() {
 
-        User user = UserTestDataProvider.user();
+        User user = UserTestDataProvider.user(null);
         userRepository.save(user);
 
         boolean result = userRepository.existsByUsername(user.getUsername());
