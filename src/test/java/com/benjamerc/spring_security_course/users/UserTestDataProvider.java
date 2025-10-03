@@ -38,7 +38,7 @@ public class UserTestDataProvider {
 
     public static AdminUserUpdateRequest adminUserUpdateRequest() {
 
-        return new AdminUserUpdateRequest("updated@email.com", "", null);
+        return new AdminUserUpdateRequest("updated@email.com", null, null);
     }
 
     public static AdminUserUpdateRequest adminUserUpdateRequest(String username, String name, Role role) {
@@ -48,7 +48,7 @@ public class UserTestDataProvider {
 
     public static UserPartialUpdateRequest userPartialUpdateRequest() {
 
-        return new UserPartialUpdateRequest("", "updated");
+        return new UserPartialUpdateRequest(null, "updated");
     }
 
     public static UserPartialUpdateRequest userPartialUpdateRequest(String username, String name) {
