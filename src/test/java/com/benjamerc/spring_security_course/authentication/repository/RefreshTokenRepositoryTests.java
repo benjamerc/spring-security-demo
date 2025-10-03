@@ -27,7 +27,7 @@ public class RefreshTokenRepositoryTests {
     @Test
     void shouldReturnRefreshTokenByToken() {
 
-        User user = UserTestDataProvider.user();
+        User user = UserTestDataProvider.user(null);
         userRepository.save(user);
 
         RefreshToken refreshToken = AuthTestDataProvider.refreshToken(user);
@@ -50,7 +50,7 @@ public class RefreshTokenRepositoryTests {
     @Test
     void shouldReturnActiveRefreshTokensByUser() {
 
-        User user = UserTestDataProvider.user();
+        User user = UserTestDataProvider.user(null);
         userRepository.save(user);
 
         RefreshToken refreshToken = AuthTestDataProvider.refreshToken(user);
@@ -64,7 +64,7 @@ public class RefreshTokenRepositoryTests {
     @Test
     void shouldReturnActiveRefreshTokensByUserWithMultipleTokens() {
 
-        User user = UserTestDataProvider.user();
+        User user = UserTestDataProvider.user(null);
         userRepository.save(user);
 
         RefreshToken token1 = AuthTestDataProvider.refreshToken(user);
@@ -82,7 +82,7 @@ public class RefreshTokenRepositoryTests {
     @Test
     void shouldReturnEmptyListWhenUserHasNoActiveRefreshToken() {
 
-        User nonExistentUser = UserTestDataProvider.user();
+        User nonExistentUser = UserTestDataProvider.user(null);
         userRepository.save(nonExistentUser);
 
         List<RefreshToken> result = refreshTokenRepository.findAllByUserAndRevokedFalse(nonExistentUser);
@@ -93,7 +93,7 @@ public class RefreshTokenRepositoryTests {
     @Test
     void shouldReturnActiveRefreshTokensByUserAndSession() {
 
-        User user = UserTestDataProvider.user();
+        User user = UserTestDataProvider.user(null);
         userRepository.save(user);
 
         RefreshToken refreshToken = AuthTestDataProvider.refreshToken(user);
@@ -107,7 +107,7 @@ public class RefreshTokenRepositoryTests {
     @Test
     void shouldReturnActiveRefreshTokensByUserAndSessionWithMultipleTokens() {
 
-        User user = UserTestDataProvider.user();
+        User user = UserTestDataProvider.user(null);
         userRepository.save(user);
 
         UUID sessionId = AuthTestDataProvider.REFRESH_TOKEN_SESSION;
@@ -129,7 +129,7 @@ public class RefreshTokenRepositoryTests {
     @Test
     void shouldReturnEmptyListWhenUserHasNoActiveTokensInSession() {
 
-        User user = UserTestDataProvider.user();
+        User user = UserTestDataProvider.user(null);
         userRepository.save(user);
 
         RefreshToken refreshToken = AuthTestDataProvider.refreshToken(user);
