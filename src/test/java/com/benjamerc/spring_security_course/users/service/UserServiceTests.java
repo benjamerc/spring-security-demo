@@ -142,7 +142,6 @@ public class UserServiceTests {
         CustomUserDetails userDetails = UserTestDataProvider.testUser(1L);
         UserPartialUpdateRequest updateRequest = UserTestDataProvider.userPartialUpdateRequest();
 
-        when(userRepository.findById(userDetails.getUser().getId())).thenReturn(Optional.of(userDetails.getUser()));
         when(userRepository.existsByUsername(updateRequest.username()))
                 .thenReturn(true);
 
@@ -150,8 +149,8 @@ public class UserServiceTests {
                 .isInstanceOf(UsernameAlreadyExistsException.class)
                 .hasMessage("Username already exists");
 
-        verify(userRepository).findById(userDetails.getUser().getId());
         verify(userRepository).existsByUsername(updateRequest.username());
+        verify(userRepository, never()).findById(anyLong());
         verify(userRepository, never()).save(any(User.class));
     }
 
