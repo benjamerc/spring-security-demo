@@ -65,7 +65,7 @@ public class AuthenticationServiceTests {
     @Test
     void shouldRegisterUser() {
 
-        User user = UserTestDataProvider.user();
+        User user = UserTestDataProvider.user(null);
 
         AuthRegisterRequest registerRequest =
                 AuthTestDataProvider.authRegisterRequest(user.getUsername(), user.getName(), user.getPassword());
@@ -92,7 +92,7 @@ public class AuthenticationServiceTests {
     @Test
     void shouldThrowUsernameAlreadyExistsWhenRegisterCalledWithExistingUsername() {
 
-        User user = UserTestDataProvider.user();
+        User user = UserTestDataProvider.user(null);
 
         AuthRegisterRequest registerRequest =
                 AuthTestDataProvider.authRegisterRequest(user.getUsername(), user.getName(), user.getPassword());
@@ -175,7 +175,7 @@ public class AuthenticationServiceTests {
         AuthRefreshTokenRequest request =
                 AuthTestDataProvider.authRefreshTokenRequest(AuthTestDataProvider.REFRESH_TOKEN_STRING);
 
-        User user = UserTestDataProvider.user();
+        User user = UserTestDataProvider.user(null);
         RefreshToken refreshToken = AuthTestDataProvider.refreshToken(user);
         RefreshTokenWithRaw newRefreshToken =
                 AuthTestDataProvider.refreshTokenWithRaw(refreshToken, refreshToken.getToken());
@@ -254,7 +254,7 @@ public class AuthenticationServiceTests {
         AuthRefreshTokenRequest request =
                 AuthTestDataProvider.authRefreshTokenRequest(AuthTestDataProvider.REFRESH_TOKEN_STRING);
 
-        User user = UserTestDataProvider.user();
+        User user = UserTestDataProvider.user(null);
         RefreshToken refreshToken = AuthTestDataProvider.refreshToken(user);
 
         when(refreshTokenService.validateRefreshToken(request.token())).thenReturn(refreshToken);
