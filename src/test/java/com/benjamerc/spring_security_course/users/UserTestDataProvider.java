@@ -8,30 +8,32 @@ import com.benjamerc.spring_security_course.users.model.User;
 
 public class UserTestDataProvider {
 
-    public static User user() {
-
+    public static User user(Long id, Role role) {
         return User.builder()
-                .username("user@email.com")
-                .name("user")
+                .id(id)
+                .username(role == Role.ADMIN ? "admin@email.com" : "user@email.com")
+                .name(role == Role.ADMIN ? "admin" : "user")
                 .password("pass123")
-                .role(Role.USER)
+                .role(role)
                 .build();
     }
 
     public static User user(Long id) {
+        return user(id, Role.USER);
+    }
 
-        return User.builder()
-                .id(id)
-                .username("user@email.com")
-                .name("user")
-                .password("pass123")
-                .role(Role.USER)
-                .build();
+    public static User admin(Long id) {
+        return user(id, Role.ADMIN);
     }
 
     public static CustomUserDetails testUser(Long id) {
 
         return new CustomUserDetails(UserTestDataProvider.user(id));
+    }
+
+    public static CustomUserDetails testAdmin(Long id) {
+
+        return new CustomUserDetails(UserTestDataProvider.admin(id));
     }
 
     public static AdminUserUpdateRequest adminUserUpdateRequest() {
