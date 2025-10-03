@@ -35,12 +35,12 @@ public class UserServiceImpl implements UserService {
     @Override
     public UserPartialUpdateResponse updateProfile(@AuthenticationPrincipal CustomUserDetails userDetails, UserPartialUpdateRequest request) {
 
-        User user = getUserOrThrow(userDetails);
-
         if (userRepository.existsByUsername(request.username())) {
 
             throw new UsernameAlreadyExistsException("Username already exists");
         }
+
+        User user = getUserOrThrow(userDetails);
 
         Optional.ofNullable(request.username())
                 .filter(u -> !u.isBlank())
