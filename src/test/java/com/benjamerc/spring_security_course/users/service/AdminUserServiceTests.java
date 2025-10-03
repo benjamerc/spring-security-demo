@@ -1,5 +1,6 @@
 package com.benjamerc.spring_security_course.users.service;
 
+import com.benjamerc.spring_security_course.authentication.exception.UsernameAlreadyExistsException;
 import com.benjamerc.spring_security_course.authentication.security.RefreshTokenService;
 import com.benjamerc.spring_security_course.security.core.Role;
 import com.benjamerc.spring_security_course.users.UserTestDataProvider;
@@ -208,6 +209,25 @@ public class AdminUserServiceTests {
         verify(userRepository).findById(user.getId());
         verify(userRepository).save(any(User.class));
         verify(adminUserMapper).toAdminUserResponse(user);
+    }
+
+    @Test
+    void shouldThrowUsernameAlreadyExistsWhenPartialUpdateCalledWithExistentUsername() {
+
+        User user = UserTestDataProvider.user(1L);
+
+        AdminUserUpdateRequest updateRequest = UserTestDataProvider.adminUserUpdateRequest();
+
+        when(userRepository.existsByUsername(updateRequest.username()))
+                .thenThrow(new UsernameAlreadyExistsException("Username already exists"));
+
+        assertThatThrownBy(() -> adminUserService.partialUpdate(user.getId(), updateRequest))
+                .isInstanceOf(UsernameAlreadyExistsException.class)
+                .hasMessage("Username already exists");
+
+        verify(userRepository).existsByUsername(updateRequest.username());
+        verify(userRepository, never()).findById(anyLong());
+        verify(userRepository, never()).save(any(User.class));
     }
 
     @Test
