@@ -12,6 +12,7 @@ import com.benjamerc.spring_security_course.users.service.AdminUserService;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
@@ -26,13 +27,13 @@ import java.util.List;
 import static org.assertj.core.api.AssertionsForInterfaceTypes.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
-import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.user;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @WebMvcTest(AdminUserController.class)
+@AutoConfigureMockMvc(addFilters = false)
 public class AdminUserControllerTests {
 
     @Autowired
@@ -238,21 +239,18 @@ public class AdminUserControllerTests {
         return mockMvc.perform(patch(url, id)
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(body))
-                .with(user(admin.getUsername()))
-                .with(csrf()));
+                .with(user(admin.getUsername())));
     }
 
     private ResultActions performDelete(String url, long id, User admin) throws Exception {
 
         return mockMvc.perform(delete(url, id)
-                .with(user(admin.getUsername()))
-                .with(csrf()));
+                .with(user(admin.getUsername())));
     }
 
     private ResultActions performPost(String url, long id, User admin) throws Exception {
 
         return mockMvc.perform(post(url, id)
-                .with(user(admin.getUsername()))
-                .with(csrf()));
+                .with(user(admin.getUsername())));
     }
 }
