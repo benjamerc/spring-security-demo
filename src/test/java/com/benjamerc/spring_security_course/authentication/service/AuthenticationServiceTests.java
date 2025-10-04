@@ -173,7 +173,7 @@ public class AuthenticationServiceTests {
     void shouldRefreshToken() {
 
         AuthRefreshTokenRequest request =
-                AuthTestDataProvider.authRefreshTokenRequest(AuthTestDataProvider.REFRESH_TOKEN_STRING);
+                AuthTestDataProvider.authRefreshTokenRequest();
 
         User user = UserTestDataProvider.user(null);
         RefreshToken refreshToken = AuthTestDataProvider.refreshToken(user);
@@ -201,7 +201,7 @@ public class AuthenticationServiceTests {
     void shouldThrowWhenRefreshTokenCalledWithRevokedToken() {
 
         AuthRefreshTokenRequest request =
-                AuthTestDataProvider.authRefreshTokenRequest(AuthTestDataProvider.REFRESH_TOKEN_STRING);
+                AuthTestDataProvider.authRefreshTokenRequest();
 
         when(refreshTokenService.rotateRefreshToken(request.token()))
                 .thenThrow(new RefreshTokenRevokedException("Refresh token revoked"));
@@ -218,7 +218,7 @@ public class AuthenticationServiceTests {
     void shouldThrowWhenRefreshTokenCalledWithExpiredToken() {
 
         AuthRefreshTokenRequest request =
-                AuthTestDataProvider.authRefreshTokenRequest(AuthTestDataProvider.REFRESH_TOKEN_STRING);
+                AuthTestDataProvider.authRefreshTokenRequest();
 
         when(refreshTokenService.rotateRefreshToken(request.token()))
                 .thenThrow(new RefreshTokenExpiredException("Refresh token expired"));
@@ -235,7 +235,7 @@ public class AuthenticationServiceTests {
     void shouldThrowWhenRefreshTokenCalledWithNonexistentToken() {
 
         AuthRefreshTokenRequest request =
-                AuthTestDataProvider.authRefreshTokenRequest(AuthTestDataProvider.REFRESH_TOKEN_STRING);
+                AuthTestDataProvider.authRefreshTokenRequest();
 
         when(refreshTokenService.rotateRefreshToken(request.token()))
                 .thenThrow(new RefreshTokenNotFoundException("Refresh token not found"));
@@ -252,7 +252,7 @@ public class AuthenticationServiceTests {
     void shouldLogoutUser() {
 
         AuthRefreshTokenRequest request =
-                AuthTestDataProvider.authRefreshTokenRequest(AuthTestDataProvider.REFRESH_TOKEN_STRING);
+                AuthTestDataProvider.authRefreshTokenRequest();
 
         User user = UserTestDataProvider.user(null);
         RefreshToken refreshToken = AuthTestDataProvider.refreshToken(user);
@@ -270,7 +270,7 @@ public class AuthenticationServiceTests {
     void shouldThrowWhenLogoutCalledWithRevokedToken() {
 
         AuthRefreshTokenRequest request =
-                AuthTestDataProvider.authRefreshTokenRequest(AuthTestDataProvider.REFRESH_TOKEN_STRING);
+                AuthTestDataProvider.authRefreshTokenRequest();
 
         when(refreshTokenService.validateRefreshToken(request.token()))
                 .thenThrow(new RefreshTokenRevokedException("Refresh token revoked"));
@@ -286,7 +286,7 @@ public class AuthenticationServiceTests {
     void shouldThrowWhenLogoutCalledWithExpiredToken() {
 
         AuthRefreshTokenRequest request =
-                AuthTestDataProvider.authRefreshTokenRequest(AuthTestDataProvider.REFRESH_TOKEN_STRING);
+                AuthTestDataProvider.authRefreshTokenRequest();
 
         when(refreshTokenService.validateRefreshToken(request.token()))
                 .thenThrow(new RefreshTokenExpiredException("Refresh token expired"));
@@ -302,7 +302,7 @@ public class AuthenticationServiceTests {
     void shouldThrowWhenLogoutCalledWithNonexistentToken() {
 
         AuthRefreshTokenRequest request =
-                AuthTestDataProvider.authRefreshTokenRequest(AuthTestDataProvider.REFRESH_TOKEN_STRING);
+                AuthTestDataProvider.authRefreshTokenRequest();
 
         when(refreshTokenService.validateRefreshToken(request.token()))
                 .thenThrow(new RefreshTokenNotFoundException("Refresh token not found"));
