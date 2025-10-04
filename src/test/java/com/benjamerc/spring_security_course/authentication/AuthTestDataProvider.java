@@ -63,6 +63,11 @@ public class AuthTestDataProvider {
         return new AuthAuthenticateRequest(username, password);
     }
 
+    public static AuthRefreshTokenRequest authRefreshTokenRequest() {
+
+        return new AuthRefreshTokenRequest(REFRESH_TOKEN_STRING);
+    }
+
     public static AuthRefreshTokenRequest authRefreshTokenRequest(String token) {
 
         return new AuthRefreshTokenRequest(token);
