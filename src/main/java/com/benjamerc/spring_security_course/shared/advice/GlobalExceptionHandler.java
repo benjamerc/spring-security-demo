@@ -1,6 +1,7 @@
 package com.benjamerc.spring_security_course.shared.advice;
 
 import com.benjamerc.spring_security_course.authentication.exception.*;
+import com.benjamerc.spring_security_course.shared.builder.ApiErrorBuilder;
 import com.benjamerc.spring_security_course.shared.dto.error.ApiError;
 import com.benjamerc.spring_security_course.shared.dto.error.FieldError;
 import com.benjamerc.spring_security_course.shared.exception.ErrorCode;
@@ -9,6 +10,7 @@ import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.JwtException;
 import io.jsonwebtoken.security.SignatureException;
 import jakarta.servlet.http.HttpServletRequest;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.hibernate.exception.ConstraintViolationException;
 import org.springframework.dao.DataIntegrityViolationException;
@@ -26,15 +28,18 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 @RestControllerAdvice
+@RequiredArgsConstructor
 @Slf4j
 public class GlobalExceptionHandler {
+
+    private final ApiErrorBuilder apiErrorBuilder;
 
     // ===================== Security Exceptions =====================
 
     @ExceptionHandler(ExpiredJwtException.class)
     public ResponseEntity<ApiError> handleAccessTokenExpired(ExpiredJwtException ex, HttpServletRequest request) {
 
-        return buildErrorResponse(
+        return apiErrorBuilder.build(
                 ErrorCode.ACCESS_TOKEN_EXPIRED,
                 "The access token has expired",
                 HttpStatus.UNAUTHORIZED,
@@ -45,7 +50,7 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(SignatureException.class)
     public ResponseEntity<ApiError> handleAccessTokenSignature(SignatureException ex, HttpServletRequest request) {
 
-        return buildErrorResponse(
+        return apiErrorBuilder.build(
                 ErrorCode.ACCESS_TOKEN_INVALID_SIGNATURE,
                 "The access token signature is invalid",
                 HttpStatus.UNAUTHORIZED,
@@ -56,7 +61,7 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(JwtException.class)
     public ResponseEntity<ApiError> handleAccessTokenGeneric(JwtException ex, HttpServletRequest request) {
 
-        return buildErrorResponse(
+        return apiErrorBuilder.build(
                 ErrorCode.ACCESS_TOKEN_INVALID,
                 "The access token is invalid",
                 HttpStatus.UNAUTHORIZED,
@@ -67,7 +72,7 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(BadCredentialsException.class)
     public ResponseEntity<ApiError> handleBadCredentials(BadCredentialsException ex, HttpServletRequest request) {
 
-        return buildErrorResponse(
+        return apiErrorBuilder.build(
                 ErrorCode.BAD_CREDENTIALS,
                 "Invalid username or password.",
                 HttpStatus.UNAUTHORIZED,
@@ -78,7 +83,7 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(AuthorizationDeniedException.class)
     public ResponseEntity<ApiError> handleAuthorizationDenied(AuthorizationDeniedException ex, HttpServletRequest request) {
 
-        return buildErrorResponse(
+        return apiErrorBuilder.build(
                 ErrorCode.AUTHORIZATION_DENIED,
                 "You do not have permission to access this resource.",
                 HttpStatus.FORBIDDEN,
@@ -91,7 +96,7 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(RefreshTokenNotFoundException.class)
     public ResponseEntity<ApiError> handleRefreshTokenNotFound(RefreshTokenNotFoundException ex, HttpServletRequest request) {
 
-        return buildErrorResponse(
+        return apiErrorBuilder.build(
                 ErrorCode.REFRESH_TOKEN_NOT_FOUND,
                 ex.getMessage(),
                 HttpStatus.NOT_FOUND,
@@ -102,7 +107,7 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(RefreshTokenExpiredException.class)
     public ResponseEntity<ApiError> handleRefreshTokenExpired(RefreshTokenExpiredException ex, HttpServletRequest request) {
 
-        return buildErrorResponse(
+        return apiErrorBuilder.build(
                 ErrorCode.REFRESH_TOKEN_EXPIRED,
                 ex.getMessage(),
                 HttpStatus.UNAUTHORIZED,
@@ -113,7 +118,7 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(RefreshTokenRevokedException.class)
     public ResponseEntity<ApiError> handleRefreshTokenRevoked(RefreshTokenRevokedException ex, HttpServletRequest request) {
 
-        return buildErrorResponse(
+        return apiErrorBuilder.build(
                 ErrorCode.REFRESH_TOKEN_REVOKED,
                 ex.getMessage(),
                 HttpStatus.UNAUTHORIZED,
@@ -124,7 +129,7 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(HashingException.class)
     public ResponseEntity<ApiError> handleHashingError(HashingException ex, HttpServletRequest request) {
 
-        return buildErrorResponse(
+        return apiErrorBuilder.build(
                 ErrorCode.HASHING_EXCEPTION,
                 ex.getMessage(),
                 HttpStatus.INTERNAL_SERVER_ERROR,
@@ -137,7 +142,7 @@ public class GlobalExceptionHandler {
     @ExceptionHandler({UserNotFoundException.class, UsernameNotFoundException.class})
     public ResponseEntity<ApiError> handleUserNotFoundExceptions(RuntimeException ex, HttpServletRequest request) {
 
-        return buildErrorResponse(
+        return apiErrorBuilder.build(
                 ErrorCode.USER_NOT_FOUND,
                 ex.getMessage(),
                 HttpStatus.NOT_FOUND,
@@ -148,7 +153,7 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(UsernameAlreadyExistsException.class)
     public ResponseEntity<ApiError> handleUsernameAlreadyExists(UsernameAlreadyExistsException ex, HttpServletRequest request) {
 
-        return buildErrorResponse(
+        return apiErrorBuilder.build(
                 ErrorCode.USERNAME_ALREADY_EXISTS,
                 ex.getMessage(),
                 HttpStatus.BAD_REQUEST,
@@ -163,20 +168,12 @@ public class GlobalExceptionHandler {
 
         BindingResult result = ex.getBindingResult();
 
-        List<FieldError> fieldErrors = result.getFieldErrors().stream()
-                .map(fe -> FieldError.builder()
-                        .field(fe.getField())
-                        .rejectedValue(fe.getRejectedValue())
-                        .message(fe.getDefaultMessage())
-                        .build())
-                .collect(Collectors.toList());
-
-        return buildErrorResponse(
+        return apiErrorBuilder.build(
                 ErrorCode.VALIDATION_ERROR,
                 "Validation failed",
                 HttpStatus.BAD_REQUEST,
                 request,
-                fieldErrors
+                apiErrorBuilder.buildFieldErrors(result)
         );
     }
 
@@ -189,7 +186,7 @@ public class GlobalExceptionHandler {
             message = "Username already exists";
         }
 
-        return buildErrorResponse(
+        return apiErrorBuilder.build(
                 ErrorCode.DATABASE_ERROR,
                 message,
                 HttpStatus.BAD_REQUEST,
@@ -202,7 +199,7 @@ public class GlobalExceptionHandler {
 
         log.error("Unhandled exception", ex);
 
-        return buildErrorResponse(
+        return apiErrorBuilder.build(
                 ErrorCode.INTERNAL_ERROR,
                 "Internal error",
                 HttpStatus.INTERNAL_SERVER_ERROR,
@@ -215,45 +212,11 @@ public class GlobalExceptionHandler {
 
         log.error("Unhandled exception", ex);
 
-        return buildErrorResponse(
+        return apiErrorBuilder.build(
                 ErrorCode.UNEXPECTED_ERROR,
                 "Something went wrong",
                 HttpStatus.INTERNAL_SERVER_ERROR,
                 request
         );
-    }
-
-    private ResponseEntity<ApiError> buildErrorResponse(
-            ErrorCode code,
-            String message,
-            HttpStatus status,
-            HttpServletRequest request
-    ) {
-        ApiError error = ApiError.builder()
-                .code(code)
-                .message(message)
-                .status(status.value())
-                .path(request.getRequestURI())
-                .build();
-
-        return ResponseEntity.status(status).body(error);
-    }
-
-    private ResponseEntity<ApiError> buildErrorResponse(
-            ErrorCode code,
-            String message,
-            HttpStatus status,
-            HttpServletRequest request,
-            List<FieldError> details
-    ) {
-        ApiError error = ApiError.builder()
-                .code(code)
-                .message(message)
-                .status(status.value())
-                .path(request.getRequestURI())
-                .details(details)
-                .build();
-
-        return ResponseEntity.status(status).body(error);
     }
 }
