@@ -8,12 +8,18 @@ import com.benjamerc.spring_security_course.users.model.User;
 
 public class UserTestDataProvider {
 
+    public static final String ADMIN_USERNAME = "admin@email.com";
+    public static final String ADMIN_NAME = "admin";
+    public static final String USER_USERNAME = "user@email.com";
+    public static final String USER_NAME = "user";
+    public static final String PASSWORD = "pass123";
+
     public static User user(Long id, Role role) {
         return User.builder()
                 .id(id)
-                .username(role == Role.ADMIN ? "admin@email.com" : "user@email.com")
-                .name(role == Role.ADMIN ? "admin" : "user")
-                .password("pass123")
+                .username(role == Role.ADMIN ? ADMIN_USERNAME : USER_USERNAME)
+                .name(role == Role.ADMIN ? ADMIN_NAME : USER_NAME)
+                .password(PASSWORD)
                 .role(role)
                 .build();
     }
