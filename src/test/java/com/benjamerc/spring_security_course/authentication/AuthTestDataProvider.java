@@ -5,6 +5,7 @@ import com.benjamerc.spring_security_course.authentication.dto.request.AuthRefre
 import com.benjamerc.spring_security_course.authentication.dto.request.AuthRegisterRequest;
 import com.benjamerc.spring_security_course.authentication.dto.token.RefreshTokenWithRaw;
 import com.benjamerc.spring_security_course.authentication.model.RefreshToken;
+import com.benjamerc.spring_security_course.users.UserTestDataProvider;
 import com.benjamerc.spring_security_course.users.model.User;
 
 import java.time.Instant;
@@ -45,7 +46,7 @@ public class AuthTestDataProvider {
 
     public static AuthRegisterRequest authRegisterRequest() {
 
-        return new AuthRegisterRequest("user@email.com", "user", "pass123");
+        return new AuthRegisterRequest(UserTestDataProvider.USER_USERNAME, UserTestDataProvider.USER_NAME, UserTestDataProvider.PASSWORD);
     }
 
     public static AuthRegisterRequest authRegisterRequest(String username, String name, String password) {
@@ -55,7 +56,7 @@ public class AuthTestDataProvider {
 
     public static AuthAuthenticateRequest authAuthenticateRequest() {
 
-        return new AuthAuthenticateRequest("user@email.com", "pass123");
+        return new AuthAuthenticateRequest(UserTestDataProvider.USER_USERNAME, UserTestDataProvider.PASSWORD);
     }
 
     public static AuthAuthenticateRequest authAuthenticateRequest(String username, String password) {
