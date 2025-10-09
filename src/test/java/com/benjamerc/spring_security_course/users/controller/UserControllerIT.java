@@ -1,46 +1,34 @@
 package com.benjamerc.spring_security_course.users.controller;
 
-import com.benjamerc.spring_security_course.authentication.AuthTestDataProvider;
-import com.benjamerc.spring_security_course.authentication.dto.request.AuthAuthenticateRequest;
-import com.benjamerc.spring_security_course.authentication.dto.response.AuthAuthenticateResponse;
 import com.benjamerc.spring_security_course.security.core.Role;
+import com.benjamerc.spring_security_course.testsupport.IntegrationTestHelper;
+import com.benjamerc.spring_security_course.testsupport.dto.UserTokens;
 import com.benjamerc.spring_security_course.users.UserTestDataProvider;
-import com.benjamerc.spring_security_course.users.UserTestFactory;
 import com.benjamerc.spring_security_course.users.dto.request.UserPartialUpdateRequest;
 import com.benjamerc.spring_security_course.users.dto.response.UserPartialUpdateResponse;
 import com.benjamerc.spring_security_course.users.dto.response.UserProfileResponse;
-import com.benjamerc.spring_security_course.users.model.User;
 import com.benjamerc.spring_security_course.users.repository.UserRepository;
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.web.client.TestRestTemplate;
 import org.springframework.http.*;
-import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.test.context.ActiveProfiles;
-
-import java.util.List;
 
 import static org.assertj.core.api.Assertions.*;
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
-@ActiveProfiles("test")
 public class UserControllerIT {
 
     @Autowired
     private TestRestTemplate restTemplate;
 
     @Autowired
+    private IntegrationTestHelper helper;
+
+    @Autowired
     private UserRepository userRepository;
-
-    @Autowired
-    private PasswordEncoder passwordEncoder;
-
-    @Autowired
-    private ObjectMapper objectMapper;
 
     private String userToken;
     private String adminToken;
@@ -50,53 +38,38 @@ public class UserControllerIT {
 
         userRepository.deleteAll();
 
-        User definedUser = UserTestFactory.defineUser(
+        helper.createUser(
                 UserTestDataProvider.USER_USERNAME,
                 UserTestDataProvider.USER_NAME,
                 UserTestDataProvider.PASSWORD,
-                Role.USER,
-                passwordEncoder
+                Role.USER
         );
 
-        User definedAdmin = UserTestFactory.defineUser(
+        helper.createUser(
                 UserTestDataProvider.ADMIN_USERNAME,
                 UserTestDataProvider.ADMIN_NAME,
                 UserTestDataProvider.PASSWORD,
-                Role.ADMIN,
-                passwordEncoder
+                Role.ADMIN
         );
 
-        userRepository.saveAll(List.of(definedUser, definedAdmin));
+        UserTokens userTokens = helper.authenticateAndGetTokens(
+                UserTestDataProvider.USER_USERNAME,
+                UserTestDataProvider.PASSWORD
+        );
 
-        userToken = authenticateAndGetToken(definedUser.getUsername(), UserTestDataProvider.PASSWORD);
-        adminToken = authenticateAndGetToken(definedAdmin.getUsername(), UserTestDataProvider.PASSWORD);
-    }
+        UserTokens adminTokens  = helper.authenticateAndGetTokens(
+                UserTestDataProvider.ADMIN_USERNAME,
+                UserTestDataProvider.PASSWORD
+        );
 
-    protected HttpHeaders authorizedHeaders(String token) {
-
-        HttpHeaders headers = new HttpHeaders();
-        headers.setBearerAuth(token);
-        headers.setContentType(MediaType.APPLICATION_JSON);
-
-        return headers;
-    }
-
-    private String authenticateAndGetToken(String username, String password) {
-
-        AuthAuthenticateRequest request = AuthTestDataProvider.authAuthenticateRequest(username, password);
-
-        ResponseEntity<AuthAuthenticateResponse> response =
-                restTemplate.postForEntity("/api/auth/authenticate", request, AuthAuthenticateResponse.class);
-
-        assertThat(response.getBody()).isNotNull();
-
-        return response.getBody().accessToken();
+        userToken = userTokens.accessToken();
+        adminToken = adminTokens.accessToken();
     }
 
     @Test
     void shouldReturn200AndUserProfileWhenUserIsAuthenticated() {
 
-        HttpEntity<Void> entity = new HttpEntity<>(authorizedHeaders(userToken));
+        HttpEntity<Void> entity = new HttpEntity<>(helper.authorizedHeaders(userToken));
 
         ResponseEntity<UserProfileResponse> response = restTemplate.exchange(
                 "/api/user/me",
@@ -128,7 +101,7 @@ public class UserControllerIT {
     @Test
     void shouldReturn403WhenUserProfileCalledWithIncorrectRole() {
 
-        HttpEntity<Void> entity = new HttpEntity<>(authorizedHeaders(adminToken));
+        HttpEntity<Void> entity = new HttpEntity<>(helper.authorizedHeaders(adminToken));
 
         ResponseEntity<UserProfileResponse> response = restTemplate.exchange(
                 "/api/user/me",
@@ -145,7 +118,7 @@ public class UserControllerIT {
 
         UserPartialUpdateRequest updateRequest = UserTestDataProvider.userPartialUpdateRequest();
 
-        HttpEntity<UserPartialUpdateRequest> entity = new HttpEntity<>(updateRequest, authorizedHeaders(userToken));
+        HttpEntity<UserPartialUpdateRequest> entity = new HttpEntity<>(updateRequest, helper.authorizedHeaders(userToken));
 
         ResponseEntity<UserPartialUpdateResponse> response = restTemplate.exchange(
                 "/api/user/me",
@@ -166,7 +139,7 @@ public class UserControllerIT {
 
         UserPartialUpdateRequest updateRequest = UserTestDataProvider.userPartialUpdateRequest();
 
-        HttpEntity<UserPartialUpdateRequest> entity = new HttpEntity<>(updateRequest, authorizedHeaders(null));
+        HttpEntity<UserPartialUpdateRequest> entity = new HttpEntity<>(updateRequest, helper.authorizedHeaders(null));
 
         ResponseEntity<UserPartialUpdateResponse> response = restTemplate.exchange(
                 "/api/user/me",
@@ -183,7 +156,7 @@ public class UserControllerIT {
 
         UserPartialUpdateRequest updateRequest = UserTestDataProvider.userPartialUpdateRequest();
 
-        HttpEntity<UserPartialUpdateRequest> entity = new HttpEntity<>(updateRequest, authorizedHeaders(adminToken));
+        HttpEntity<UserPartialUpdateRequest> entity = new HttpEntity<>(updateRequest, helper.authorizedHeaders(adminToken));
 
         ResponseEntity<UserPartialUpdateResponse> response = restTemplate.exchange(
                 "/api/user/me",
@@ -200,7 +173,7 @@ public class UserControllerIT {
 
         UserPartialUpdateRequest updateRequest = UserTestDataProvider.userPartialUpdateRequest(null,"");
 
-        HttpEntity<UserPartialUpdateRequest> entity = new HttpEntity<>(updateRequest, authorizedHeaders(userToken));
+        HttpEntity<UserPartialUpdateRequest> entity = new HttpEntity<>(updateRequest, helper.authorizedHeaders(userToken));
 
         ResponseEntity<UserPartialUpdateResponse> response = restTemplate.exchange(
                 "/api/user/me",
@@ -215,7 +188,7 @@ public class UserControllerIT {
     @Test
     void shouldReturn204AndDeleteUserAccountWhenUserIsAuthenticated() {
 
-        HttpEntity<Void> entity = new HttpEntity<>(authorizedHeaders(userToken));
+        HttpEntity<Void> entity = new HttpEntity<>(helper.authorizedHeaders(userToken));
 
         ResponseEntity<Void> response = restTemplate.exchange(
                 "/api/user/me",
@@ -243,7 +216,7 @@ public class UserControllerIT {
     @Test
     void shouldReturn403WhenDeleteUserAccountCalledWithIncorrectRole() {
 
-        HttpEntity<Void> entity = new HttpEntity<>(authorizedHeaders(adminToken));
+        HttpEntity<Void> entity = new HttpEntity<>(helper.authorizedHeaders(adminToken));
 
         ResponseEntity<Void> response = restTemplate.exchange(
                 "/api/user/me",
@@ -258,7 +231,7 @@ public class UserControllerIT {
     @Test
     void shouldReturn204AndLogoutAllUserSessionsWhenUserIsAuthenticated() {
 
-        HttpEntity<Void> entity = new HttpEntity<>(authorizedHeaders(userToken));
+        HttpEntity<Void> entity = new HttpEntity<>(helper.authorizedHeaders(userToken));
 
         ResponseEntity<Void> response = restTemplate.exchange(
                 "/api/user/me/logout-all",
@@ -286,7 +259,7 @@ public class UserControllerIT {
     @Test
     void shouldReturn403WhenLogoutAllUserSessionsCalledWithIncorrectRole() {
 
-        HttpEntity<Void> entity = new HttpEntity<>(authorizedHeaders(adminToken));
+        HttpEntity<Void> entity = new HttpEntity<>(helper.authorizedHeaders(adminToken));
 
         ResponseEntity<Void> response = restTemplate.exchange(
                 "/api/user/me/logout-all",
