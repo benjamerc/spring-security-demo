@@ -1,6 +1,7 @@
 package com.benjamerc.spring_security_course.users.service;
 
 import com.benjamerc.spring_security_course.authentication.exception.UsernameAlreadyExistsException;
+import com.benjamerc.spring_security_course.shared.dto.pagination.CustomPage;
 import com.benjamerc.spring_security_course.users.dto.request.AdminUserUpdateRequest;
 import com.benjamerc.spring_security_course.users.dto.response.AdminUserResponse;
 import com.benjamerc.spring_security_course.users.dto.response.AdminUserSummaryResponse;
@@ -31,12 +32,14 @@ public class AdminUserServiceImpl implements AdminUserService {
     private int maxPageSize;
 
     @Override
-    public Page<AdminUserSummaryResponse> getAllUsers(Pageable pageable) {
+    public CustomPage<AdminUserSummaryResponse> getAllUsers(Pageable pageable) {
 
         Pageable safePageable = getSafePageable(pageable);
 
-        return userRepository.findAll(safePageable)
+        Page<AdminUserSummaryResponse> page = userRepository.findAll(safePageable)
                 .map(adminUserMapper::toAdminUserSummaryResponse);
+
+        return CustomPage.from(page);
     }
 
     @Override
