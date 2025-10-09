@@ -33,14 +33,12 @@ public class AuthenticationController {
     }
 
     @PostMapping("/refresh")
-    @PreAuthorize("isAuthenticated()")
     public ResponseEntity<AuthAuthenticateResponse> refreshToken(@RequestBody @Valid AuthRefreshTokenRequest request) {
 
         return ResponseEntity.ok(authenticationService.refreshToken(request));
     }
 
     @PostMapping("/logout")
-    @PreAuthorize("isAuthenticated()")
     public ResponseEntity<Void> logout(@RequestBody @Valid AuthRefreshTokenRequest request) {
 
         authenticationService.logout(request);
