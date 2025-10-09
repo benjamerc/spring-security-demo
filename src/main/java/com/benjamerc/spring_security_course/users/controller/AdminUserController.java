@@ -1,12 +1,12 @@
 package com.benjamerc.spring_security_course.users.controller;
 
+import com.benjamerc.spring_security_course.shared.dto.pagination.CustomPage;
 import com.benjamerc.spring_security_course.users.dto.request.AdminUserUpdateRequest;
 import com.benjamerc.spring_security_course.users.dto.response.AdminUserResponse;
 import com.benjamerc.spring_security_course.users.dto.response.AdminUserSummaryResponse;
 import com.benjamerc.spring_security_course.users.service.AdminUserService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.web.PageableDefault;
@@ -23,7 +23,7 @@ public class AdminUserController {
 
     @GetMapping("/users")
     @PreAuthorize("hasRole('ADMIN')")
-    public ResponseEntity<Page<AdminUserSummaryResponse>> getAllUsers(
+    public ResponseEntity<CustomPage<AdminUserSummaryResponse>> getAllUsers(
             @PageableDefault(page = 0, size = 20, sort = "username", direction = Sort.Direction.ASC) Pageable pageable) {
 
         return ResponseEntity.ok(adminUserService.getAllUsers(pageable));
