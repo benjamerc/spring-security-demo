@@ -4,6 +4,7 @@ import com.benjamerc.spring_security_course.authentication.exception.UsernameAlr
 import com.benjamerc.spring_security_course.security.core.AccessTokenService;
 import com.benjamerc.spring_security_course.shared.advice.GlobalExceptionHandler;
 import com.benjamerc.spring_security_course.shared.builder.ApiErrorBuilder;
+import com.benjamerc.spring_security_course.shared.dto.pagination.CustomPage;
 import com.benjamerc.spring_security_course.users.UserTestDataProvider;
 import com.benjamerc.spring_security_course.users.dto.request.AdminUserUpdateRequest;
 import com.benjamerc.spring_security_course.users.dto.response.AdminUserResponse;
@@ -17,8 +18,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.context.annotation.Import;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.MediaType;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
@@ -58,12 +57,13 @@ public class AdminUserControllerTest {
         User admin = UserTestDataProvider.admin(1L);
         User user = UserTestDataProvider.user(2L);
 
-        Page<AdminUserSummaryResponse> pageResponse =
-                new PageImpl<>(List.of(
-                        new AdminUserSummaryResponse(user.getId(), user.getUsername(), user.getName(), user.getRole())
-                ));
+        CustomPage<AdminUserSummaryResponse> customPage =
+                new CustomPage<>(
+                        List.of(new AdminUserSummaryResponse(user.getId(), user.getUsername(), user.getName(), user.getRole())),
+                        0, 20, 1, 1, true
+                );
 
-        when(adminUserService.getAllUsers(any(Pageable.class))).thenReturn(pageResponse);
+        when(adminUserService.getAllUsers(any(Pageable.class))).thenReturn(customPage);
 
         mockMvc.perform(get("/api/admin/users")
                         .with(user(admin.getUsername())))
@@ -71,7 +71,12 @@ public class AdminUserControllerTest {
                 .andExpect(jsonPath("$.content[0].id").value(user.getId()))
                 .andExpect(jsonPath("$.content[0].username").value(user.getUsername()))
                 .andExpect(jsonPath("$.content[0].name").value(user.getName()))
-                .andExpect(jsonPath("$.content[0].role").value(user.getRole().toString()));
+                .andExpect(jsonPath("$.content[0].role").value(user.getRole().toString()))
+                .andExpect(jsonPath("$.pageNumber").value(0))
+                .andExpect(jsonPath("$.pageSize").value(20))
+                .andExpect(jsonPath("$.totalElements").value(1))
+                .andExpect(jsonPath("$.totalPages").value(1))
+                .andExpect(jsonPath("$.lastPage").value(true));
 
         verify(adminUserService).getAllUsers(any(Pageable.class));
     }
