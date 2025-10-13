@@ -34,6 +34,7 @@ This is a simple project created to understand the fundamentals of web security.
 - DTO–Entity mapping with MapStruct.
 - Unit and integration testing with JUnit 5, Mockito, @DataJpaTest, @WebMvcTest, @SpringBootTest, MockMvc, and TestRestTemplate (145 tests in total: 99 unit tests and 46 integration tests).
 - Configuration via environment variables (.env) and Docker Compose for a reproducible environment.
+- Passwords are hashed using BCrypt, and refresh tokens are hashed using SHA-256 for security.
 
 ## Endpoints
 

@@ -34,6 +34,7 @@ Es un proyecto simple creado para entender los fundamentos de la seguridad web.
 - Mapeo DTO–Entidad con MapStruct.
 - Pruebas unitarias e integradas con JUnit 5, Mockito, @DataJpaTest, @WebMvcTest, @SpringBootTest, MockMvc y TestRestTemplate (145 tests en total: 99 unitarios y 46 integrados).
 - Configuración mediante variables de entorno (.env) y Docker Compose para un entorno reproducible.
+- Las contraseñas se almacenan hasheadas con BCrypt, y los refresh tokens se hashean con SHA-256 para mayor seguridad.
 
 ## Endpoints
 
