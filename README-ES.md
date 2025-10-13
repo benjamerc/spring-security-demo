@@ -37,6 +37,7 @@ Es un proyecto simple creado para entender los fundamentos de la seguridad web.
 
 ## Endpoints
 
+- **PÚBLICO**
 
 ```
 POST /api/auth/register
